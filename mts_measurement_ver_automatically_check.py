@@ -11,10 +11,8 @@ import subprocess
 import traceback
 # import datetime
 import time
-
-
-
 import csv
+# git check
 
 """
 script purpose:
