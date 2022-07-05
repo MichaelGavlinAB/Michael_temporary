@@ -12,7 +12,6 @@ import traceback
 # import datetime
 import time
 import csv
-# git check
 
 """
 script purpose:
@@ -45,24 +44,28 @@ RECORDING_CORRUPTED_ERROR = "Recording corrupted"
 dir_csv = r"C:\MTS_TEST_SCRIPT"
 csv_name = "results" #without .csv
 recording_pathes = [
-                    r"Z:\2022.06.14_at_13.50.01_camera-mi_804_0_45m\2022.06.14_at_13.50.01_camera-mi_804_0_45m.rrec",
+                    # r"C:\Users\EDP_Station_1\Desktop\2022.06.14_at_14.06.06_camera-mi_804_0_20m.rrec",
+                    # r"Z:\2022.06.14_at_13.50.01_camera-mi_804_0_45m\2022.06.14_at_13.50.01_camera-mi_804_0_45m.rrec",
+                    # r"Z:\2021.02.06_at_18.28.19_camera-mi_5022\2021.02.06_at_18.28.19_camera-mi_5022.rrec",
                     r"Z:\2022.06.14_at_13.39.41_camera-mi_804_0_10m\2022.06.14_at_13.39.41_camera-mi_804_0_10m.rrec",
                     r"Z:\2022.06.14_at_13.37.16_camera-mi_804_0_5m\2022.06.14_at_13.37.16_camera-mi_804_0_5m.rrec",
-                    r"Z:\2022.06.14_at_10.57.35_camera-mi_804_15m\2022.06.14_at_10.57.35_camera-mi_804_15m.rrec",
-                    r"Z:\2022.06.14_at_11.23.02_camera-mi_804_35m\2022.06.14_at_11.23.02_camera-mi_804_35m.rrec",
-                    r"Z:\2022.06.14_at_13.44.00_camera-mi_804_0_20m\2022.06.14_at_13.44.00_camera-mi_804_0_20m.rrec",
-                    r"Z:\2022.06.14_at_11.15.28_camera-mi_804_25m\2022.06.14_at_11.15.28_camera-mi_804_25m.rrec",
-                    r"Z:\2022.06.14_at_14.07.18_camera-mi_804_0_15m\2022.06.14_at_14.07.18_camera-mi_804_0_15m.rrec",
-                    r"Z:\2022.06.14_at_14.06.06_camera-mi_804_0_20m\2022.06.14_at_14.06.06_camera-mi_804_0_20m.rrec",
+                    # r"Z:\2022.06.14_at_10.57.35_camera-mi_804_15m\2022.06.14_at_10.57.35_camera-mi_804_15m.rrec",
+                    # r"Z:\2022.06.14_at_11.23.02_camera-mi_804_35m\2022.06.14_at_11.23.02_camera-mi_804_35m.rrec",
+                    # r"Z:\2022.06.14_at_13.44.00_camera-mi_804_0_20m\2022.06.14_at_13.44.00_camera-mi_804_0_20m.rrec",
+                    # r"Z:\2022.06.14_at_11.15.28_camera-mi_804_25m\2022.06.14_at_11.15.28_camera-mi_804_25m.rrec",
+                    # r"Z:\2022.06.14_at_14.07.18_camera-mi_804_0_15m\2022.06.14_at_14.07.18_camera-mi_804_0_15m.rrec",
+                    # r"Z:\2022.06.14_at_14.06.06_camera-mi_804_0_20m\2022.06.14_at_14.06.06_camera-mi_804_0_20m.rrec",
                     ]
 
-def validate_recording_file(MTS_CMD,log_dir) -> bool:
+def validate_recording_file(log_dir,measapp_path,CONFIG_PATH,recording_path) -> bool:
     # possible fix
     # os_utilities.delete_path(log_dir)
 
     timeout_secs = max(int(os.path.getsize(recording_path) / 5000000) * 2, 60)
+    print("--- timeout_secs".ljust(60, " "),timeout_secs)
     # mts_path = os.path.join(MTS_DIR, "MTS", "mts_system", "measapp.exe")
-    # MTS_CMD = [mts_path, f"-lc{CONFIG_PATH}", f"-lr{recording_path}", "-pal", "-eab", "-silent", "-eoe"]
+    # MTS_CMD = [measapp_path, f"-lc{CONFIG_PATH}", f"-lr{recording_path}", "-pal", "-eab", "-silent", "-eoe"]
+    MTS_CMD = [measapp_path, f"-lc{CONFIG_PATH}", f"-lr{recording_path}", "-pal", "-eab", "-silent", "-eoe"]
 
     try:
         process = subprocess.Popen(MTS_CMD)
@@ -70,6 +73,7 @@ def validate_recording_file(MTS_CMD,log_dir) -> bool:
             outs, errs = process.communicate(timeout=timeout_secs)
         except subprocess.TimeoutExpired:
             logging_utilities.LOGGER.warning("Timeout expired. Killing process...")
+            print("******************************Timeout expired. Killing process...******************************")
             process.kill()
             raise TimeoutError("MTS timeout expired")
 
@@ -112,10 +116,12 @@ def search_str(file_path, word):
         content = file.read()
         # check if string present in a file
         if word in content:
-            print('string : %s  exist' % word)
+            s = '--- string: ' + word
+            print(s.ljust(60," "), 'exist')
             return 'exist'
         else:
-            print('string : %s does not exist' % word)
+            s = '--- string: ' + word
+            print(s.ljust(60," "), 'does not exist')
             return 'not exist'
 
 if __name__ == '__main__':
@@ -123,35 +129,45 @@ if __name__ == '__main__':
     csv_writer(dir_csv, csv_name,
                ["Date-time", "mts_measurement_version", "rrec", "str to find 1" , "str to find 2", "str to find 3", "MTS_RESULT"])
     for recording_path in recording_pathes:
-        print("************************************************** \n start session for: \n", recording_path , "\n*****************************************************" )
+        print("**************************************************************************************************")
+        s = "start session for:"
+        print(s.ljust(60," ") , recording_path )
+        print("**************************************************************************************************")
+
         # config
-        MTS_CMD = [measapp_path, f"-lc{CONFIG_PATH}", f"-lr{recording_path}", "-pal", "-eab", "-silent", "-eoe"]
+        # MTS_CMD = [measapp_path, f"-lc{CONFIG_PATH}", f"-lr{recording_path}", "-pal", "-eab", "-silent", "-eoe"]
 
         # get 7z files name from directory:
         onlyfiles = [f for f in listdir(mts_measurement_7z_folder) if isfile(join(mts_measurement_7z_folder, f))]
-        print(" MTS versions list: \n", onlyfiles)
+
 
         for onlyfile in onlyfiles:
             # Delete existing mts_measurement folder:
             delete_path = os.path.join(mts_measurement_original_path, 'mts_measurement')
             if os.path.exists(delete_path):
-                print("mts_measurement folder exist")
+                s= "mts_measurement folder exist"
+                print(s.ljust(60," "), "automatically delete")
                 os.system('rmdir /S /Q "{}"'.format(delete_path))
             else:
                 print("mts_measurement folder do not exist")
 
-            print("----------------------------loop start for this rrec file-------------------------------------------------")
+            print("----------------------------Check with MTS version-------------------------------------------------")
             # extract new files from 7z folder to destination:
             my_path_file = os.path.join(mts_measurement_7z_folder, onlyfile)
-            print("--- Extracting 7z file: \n", my_path_file)
-            print("To: \n", mts_measurement_original_path)
+            s = "--- Extracting 7z file:"
+            print(s.ljust(60," "), my_path_file)
+            s = "--- To path:"
+            print(s.ljust(60," "), mts_measurement_original_path)
             with py7zr.SevenZipFile(my_path_file, mode='r') as z:
                 z.extractall(mts_measurement_original_path)
-                print("--- 7z extracted : \n", my_path_file)
+                s = "--- 7z extracted:"
+                print(s.ljust(60," "), my_path_file)
 
             # Delete log folder:
-            print("--- deleting log folder")
+
             delete_path = os.path.join(mts_measurement_original_path, 'mts_measurement', "log")
+            s = "--- delete log folder:"
+            print(s.ljust(60, " "),delete_path)
             try:
                 shutil.rmtree(delete_path)
             except OSError as e:
@@ -161,22 +177,25 @@ if __name__ == '__main__':
             print("--- MTS session starts")
             # os_utilities.run_cmd(MTS_CMD)
             log_dir = os.path.join(mts_measurement_original_path, 'mts_measurement', "log")
-            MTS_RESULT = validate_recording_file(MTS_CMD,log_dir)
-            print("--- MTS session finish")
-            print("---MTS session result return:",MTS_RESULT)
+            MTS_RESULT = validate_recording_file(log_dir, measapp_path, CONFIG_PATH, recording_path)
+
+            s = "--- MTS session result return:"
+            print(s.ljust(60," "),MTS_RESULT)
 
             # search for string in xlog file:
             cwd = os.getcwd()
             os.chdir(delete_path)
             for filee in glob.glob("*.xlog"):
-                print("xlog file name: \n", filee)
+                s = "--- xlog file name"
+                print(s.ljust(60, " "), filee)
                 result1 = search_str(filee, what_to_find1)
                 result2 =search_str(filee, what_to_find2)
                 result3 = search_str(filee, what_to_find3)
             os.chdir(cwd)
 
             # write to csv
-            print("--- write to CSV file")
+            s = "--- write to CSV file"
+            print(s.ljust(60," "),os.path.join(dir_csv,csv_name)+".csv")
             csv_writer(dir_csv, csv_name, [time.strftime("%Y%m%d-%H%M%S"), onlyfile,recording_path,result1,result2,result3,MTS_RESULT])
 
             # cut current folder after script finishes:
@@ -186,7 +205,8 @@ if __name__ == '__main__':
 
             try:
                 shutil.move(source_dir, destination_dir)
-                print("--- Success, see results at: \n", destination_dir)
+                s = "--- Success, see results at:"
+                print(s.ljust(60," "), destination_dir)
             except OSError as e:
                 print("Error while moving results : %s : %s" % (source_dir, e.strerror))
 
