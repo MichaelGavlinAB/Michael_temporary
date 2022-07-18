@@ -1,0 +1,6 @@
+@echo off
+setlocal
+set DTBOX_FIX_WIN32DLL_PATHS=1
+cd %~dp0
+attrib -r %~dp0\config.json > nul
+.\python\pythonw.bat scripts\launcher.py %*
