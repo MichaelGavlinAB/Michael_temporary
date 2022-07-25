@@ -25,9 +25,8 @@ class MainWindow(qtw.QWidget):
         self.Csv_dropdown_menu = qtw.QComboBox()
         self.storage =  qtw.QLineEdit() #store temporary path ones clicked to be passed between functions
         self.graphWidget = pg.PlotWidget() #plot
-        self.photo = QPixmap("/home/michael/Pictures/Wallpapers/autobrains_wallpaper.png").scaledToWidth(1000) #insert image
+        self.photo = QPixmap().scaledToWidth(1000) #insert image path
         self.label = QLabel() #insert image
-        # pixmap = pixmap.scaledToWidth(250)
         self.label.setPixmap(self.photo) #insert image
         self.btn_open_picture = qtw.QPushButton('open picture', clicked=self.show_picture)
 
@@ -79,6 +78,12 @@ class MainWindow(qtw.QWidget):
 
     def show_picture(self):
         print("show_picture clicked")
+        picture_path = QFileDialog.getOpenFileNames()
+        picture_path = picture_path[0][0]
+        print(picture_path)
+        self.photo = QPixmap(picture_path).scaledToWidth(1000)
+        self.label.setPixmap(self.photo) #insert image
+
         # self.photo.setPixmap(QPixmap='self.photo.setPixmap(QPixmap=/home/michael/Desktop/Knowlage/image.png')
 
 if __name__ == "__main__":
