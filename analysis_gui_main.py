@@ -5,6 +5,7 @@ import pandas as pd
 import pyqtgraph as pg
 from PyQt5.QtGui import QPixmap , QKeySequence
 import os
+import json
 import numpy as np
 import pyqtgraph.examples
 
@@ -42,32 +43,19 @@ class MainWindow(qtw.QWidget):
         self.btn_open_csv = qtw.QPushButton('click here to choose a csv file',clicked =self.QPushButton_clicked)
         # self.Show_content = qtw.QPushButton('Show content', clicked=self.Choose_from_list)
         self.Csv_dropdown_menu = qtw.QComboBox()
-        self.Csv_dropdown_menu1 = qtw.QComboBox()
-        self.Csv_dropdown_menu2 = qtw.QComboBox()
-        self.Csv_dropdown_menu3 = qtw.QComboBox()
-        self.Csv_dropdown_menu4 = qtw.QComboBox()
+
         # adding action to combo box
         self.Csv_dropdown_menu.activated.connect(self.Csv_dropdown_menu_activated)
-        self.Csv_dropdown_menu1.activated.connect(self.Csv_dropdown_menu_activated1)
-        self.Csv_dropdown_menu2.activated.connect(self.Csv_dropdown_menu_activated2)
-        self.Csv_dropdown_menu3.activated.connect(self.Csv_dropdown_menu_activated3)
-        self.Csv_dropdown_menu4.activated.connect(self.Csv_dropdown_menu_activated4)
+
 
         self.storage =  qtw.QLineEdit() #store temporary path ones clicked to be passed between functions
+        self.storage_CSV_data =  qtw.QTextEdit() #store temporary string of data
+        self.storage_CSV_timestamps = qtw.QTextEdit()  # store temporary string of data
 
 
         self.graphWidget = pg.PlotWidget() #plot
-        self.graphWidget1 = pg.PlotWidget()
-        self.graphWidget2 = pg.PlotWidget()
-        self.graphWidget3 = pg.PlotWidget()
-        self.graphWidget4 = pg.PlotWidget()
 
         self.graphWidget.showGrid(x=True, y=True)
-        self.graphWidget1.showGrid(x=True, y=True)
-        self.graphWidget2.showGrid(x=True, y=True)
-        self.graphWidget3.showGrid(x=True, y=True)
-        self.graphWidget4.showGrid(x=True, y=True)
-
 
         self.photo = QPixmap() #insert image path in this object
         self.label_image = QLabel() #insert image
@@ -108,17 +96,12 @@ class MainWindow(qtw.QWidget):
 
 
         container3.layout().addWidget(self.graphWidget, 1, 1, 1, 1)
-        container3.layout().addWidget(self.graphWidget1, 1, 2, 1, 1)
-        container3.layout().addWidget(self.graphWidget2, 1, 3, 1, 1)
-        container3.layout().addWidget(self.graphWidget3, 1, 4, 1, 1)
-        container3.layout().addWidget(self.graphWidget4, 1, 5, 1, 1)
 
 
         container3.layout().addWidget(self.Csv_dropdown_menu, 2, 1, 1, 1)
-        container3.layout().addWidget(self.Csv_dropdown_menu1, 2, 2, 1, 1)
-        container3.layout().addWidget(self.Csv_dropdown_menu2, 2, 3, 1, 1)
-        container3.layout().addWidget(self.Csv_dropdown_menu3, 2, 4, 1, 1)
-        container3.layout().addWidget(self.Csv_dropdown_menu4, 2, 5, 1, 1)
+
+        container3.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
+        container3.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
 
         self.layout().addWidget(container)
         self.layout().addWidget(container1)
@@ -131,62 +114,50 @@ class MainWindow(qtw.QWidget):
         CSV_path = QFileDialog.getOpenFileNames()
         # dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
         CSV_path_str = CSV_path[0][0]
+        self.storage.clear()
         self.storage.setText(CSV_path_str) #store path in temporary widget
         dff = pd.read_csv(CSV_path_str)
         headers = dff.columns.tolist()
         headers.pop(0)
 
+        self.Csv_dropdown_menu.clear()
+
         # add headers to drop down list
         for header in headers:
             self.Csv_dropdown_menu.addItem(header)
-        for header in headers:
-            self.Csv_dropdown_menu1.addItem(header)
-        for header in headers:
-            self.Csv_dropdown_menu2.addItem(header)
-        for header in headers:
-            self.Csv_dropdown_menu3.addItem(header)
-        for header in headers:
-            self.Csv_dropdown_menu4.addItem(header)
 
     def Csv_dropdown_menu_activated(self):
         print("Csv_dropdown_menu_activated")
         header = self.Csv_dropdown_menu.currentText()
         path = self.storage.text()
 
-        current_time = int(self.dropdown_menu_storage_image_names.currentText()[-20:-4]) #get time from dropdown list
-
         time_stamps , data = self.get_data_from_file(path , header)
-        print("current time stamp" , current_time)
-        self.plot_grapth(self.graphWidget,time_stamps,data,current_time)
 
+        self.storage_CSV_timestamps.clear()
+        self.storage_CSV_data.clear()
 
-    def Csv_dropdown_menu_activated1(self):
-        print("Csv_dropdown_menu_activated1")
-        header = self.Csv_dropdown_menu1.currentText()
-        path = self.storage.text()
+        #save to storage
+        self.storage_CSV_data.setText(str(data))
+        self.storage_CSV_timestamps.setText(str(time_stamps))
 
-        current_time = int(self.dropdown_menu_storage_image_names.currentText()[-20:-4]) #get time from dropdown list
+        #plot data
+        clear = 1
+        self.plot_grapth(self.graphWidget,time_stamps,data , clear)
 
-        time_stamp , data = self.get_data_from_file(path , header)
-        self.plot_grapth(self.graphWidget1,time_stamp,data,current_time)
+    def Csv_dropdown_menu_activated_update(self):
+        print("Csv_dropdown_menu_activated_update")
 
-    def Csv_dropdown_menu_activated2(self):
-        header = self.Csv_dropdown_menu2.currentText()
-        path = self.storage.text()
-        time_stamp , data = self.get_data_from_file(path , header)
-        self.plot_grapth(self.graphWidget2,time_stamp,data,time_stamp[0])
+        current_time = int(self.dropdown_menu_storage_image_names.currentText()[-20:-4]) # get time from dropdown list
+        time_stamps_from_storage = self.string_to_list(self.storage_CSV_timestamps.toPlainText())# get data from dropdown list
+        data_from_storage = self.string_to_list(self.storage_CSV_data.toPlainText())
 
-    def Csv_dropdown_menu_activated3(self):
-        header = self.Csv_dropdown_menu3.currentText()
-        path = self.storage.text()
-        time_stamp , data = self.get_data_from_file(path , header)
-        self.plot_grapth(self.graphWidget3,time_stamp,data,time_stamp[0])
+        if data_from_storage and time_stamps_from_storage:
+            Xdata = [current_time, current_time]
+            Ydata = [max(data_from_storage),min(data_from_storage)]
+            clear = 0
+            self.graphWidget.plot(Xdata, Ydata, pen=(255, 0, 0), name="Red curve",clear=True)  # add timestamp
+            self.plot_grapth(self.graphWidget, time_stamps_from_storage,data_from_storage, clear)
 
-    def Csv_dropdown_menu_activated4(self):
-        header = self.Csv_dropdown_menu4.currentText()
-        path = self.storage.text()
-        time_stamp, data = self.get_data_from_file(path, header)
-        self.plot_grapth(self.graphWidget4, time_stamp, data,time_stamp[0])
 
     def get_data_from_file(self , path,header):
         dff = pd.read_csv(path)
@@ -194,19 +165,18 @@ class MainWindow(qtw.QWidget):
         data = dff[header].tolist()
         return time_stamp , data
 
-    def plot_grapth(self,widget,x_data,y_daya,current_time):
-        # widget.plot(x_data, y_daya,clear=True) # plot the data
-
-        # add time stamp to plot
-        Xdata = [current_time, current_time]
-        Ydata = [min(y_daya), max(y_daya)]
-        widget.plot(Xdata, Ydata, pen=(255, 0, 0), name="Red curve", clear=True)  # add timestamp
+    def plot_grapth(self,widget,x_data,y_data,clear):
+        #clear = 1 - clear graph
+        # clear = 0 - do not clear
+        print("plot_grapth")
 
         #add data to plot
-        widget.plot(x_data, y_daya , pen=(0,0,255), name="Blue curve") # plot the data
-        widget.enableAutoRange('xy', True)
-
-
+        if clear:
+            widget.plot(x_data, y_data , name="data" , clear=True) # plot the data
+        else:
+            widget.plot(x_data, y_data, name="data")  # plot the data
+        # widget.plot(x_data, y_data, name="data", clear=True)  # plot the data
+        # widget.enableAutoRange('xy', True)
 
 
     def show_picture(self):
@@ -232,13 +202,7 @@ class MainWindow(qtw.QWidget):
         self.photo = QPixmap(self.dropdown_menu_storage_image_names.currentText()).scaledToHeight(450)
         self.label_image.setPixmap(self.photo)#insert image
         print("Dropdown_image_activated")
-        self.Csv_dropdown_menu_activated()
-        self.Csv_dropdown_menu_activated1()
-        self.Csv_dropdown_menu_activated2()
-        self.Csv_dropdown_menu_activated3()
-        self.Csv_dropdown_menu_activated4()
-
-        # self.add_timestamp_to_plot()
+        self.Csv_dropdown_menu_activated_update()
 
     def slider_move(self):
         number_of_items = self.dropdown_menu_storage_image_names.count()
@@ -247,13 +211,31 @@ class MainWindow(qtw.QWidget):
         print(self.slider.value())
 
     def next_picture(self):
+        # update image
         self.dropdown_menu_storage_image_names.setCurrentIndex(self.dropdown_menu_storage_image_names.currentIndex() + 1)
         self.Dropdown_image_activated()
+        #update slider
+        number_of_items = self.dropdown_menu_storage_image_names.count()
+        current_item_index = self.dropdown_menu_storage_image_names.currentIndex()
+        self.slider.setValue(current_item_index/number_of_items*100)
 
     def previous_picture(self):
         self.dropdown_menu_storage_image_names.setCurrentIndex(self.dropdown_menu_storage_image_names.currentIndex() - 1)
         self.Dropdown_image_activated()
+        #update slider
+        number_of_items = self.dropdown_menu_storage_image_names.count()
+        current_item_index = self.dropdown_menu_storage_image_names.currentIndex()
 
+        self.slider.setValue(current_item_index/number_of_items*100)
+
+    def string_to_list(self,string_data):
+        #translate string data to list
+        if string_data:
+            time_stamps_from_storage = string_data[1:-1].split(',')
+            data = [float(i) for i in time_stamps_from_storage]
+            return data
+        else:
+            return []
 
 
 
