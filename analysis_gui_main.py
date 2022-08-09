@@ -5,14 +5,6 @@ import pandas as pd
 import pyqtgraph as pg
 from PyQt5.QtGui import QPixmap , QKeySequence
 import os
-import json
-import numpy as np
-import pyqtgraph.examples
-
-# SIM Image Right.SimImagePorts.SIM Image Right.AbsoluteTimestamp
-# 1606587429086254
-
-# pyqtgraph.examples.run() #examples for plotting!!
 
 
 class MainWindow(qtw.QWidget):
@@ -44,48 +36,62 @@ class MainWindow(qtw.QWidget):
         self.Csv_dropdown_menu = qtw.QComboBox()
         self.Csv_dropdown_menu.activated.connect(self.Csv_dropdown_menu_activated)# adding action to combo box
         self.storage =  qtw.QLineEdit() #store temporary path ones clicked to be passed between functions
+        self.storage_picture_scale = qtw.QLineEdit()
         self.storage_CSV_data =  qtw.QTextEdit() #store temporary string of data
         self.Time_stamp_display = qtw.QLabel(" Time stamp: ")
         self.storage_CSV_timestamps = qtw.QTextEdit()  # store temporary string of data
         self.graphWidget = pg.PlotWidget() #plot
         self.graphWidget.showGrid(x=True, y=True)
         self.photo = QPixmap() #insert image path in this object
+        self.photo2 = QPixmap()  # insert image path in this object
         self.label_image = QLabel() #insert image
         self.label_image.setPixmap(self.photo) #insert image
+        self.label_image2 = QLabel() #insert image
+        self.label_image2.setPixmap(self.photo) #insert image
         self.btn_open_picture = qtw.QPushButton('open images folder from mapi', clicked=self.show_picture)
         self.dropdown_menu_storage_image_names = qtw.QComboBox()
         self.dropdown_menu_storage_image_names.activated.connect(self.Dropdown_image_activated) # adding action to combo box
+        self.btn_open_picture2 = qtw.QPushButton('optional -  open images folder to compare', clicked=self.show_picture2)
+        self.dropdown_menu_storage_image_names2 = qtw.QComboBox()
+        self.dropdown_menu_storage_image_names2.activated.connect(self.Dropdown_image_activated2) # adding action to combo box
         self.slider = qtw.QSlider(1) #slider
         self.slider.valueChanged.connect(self.slider_move)
         self.next_picture = qtw.QPushButton('-->', clicked=self.next_picture)
         self.previous_picture = qtw.QPushButton('<--', clicked=self.previous_picture)
 
-        #first image to show
-        picture_path = "/home/michael/Pictures/Wallpapers/autobrains_wallpaper.png"
-        self.photo = QPixmap(picture_path).scaledToHeight(450)
+
+        picture_path = "/home/michael/Pictures/QUAD_1657640389815893.png"
+        self.storage_picture_scale.setText("450") # init scale
+        scale = int (self.storage_picture_scale.text())
+        print("scale" , scale)
+        self.photo = QPixmap(picture_path).scaledToHeight(scale)
         self.label_image.setPixmap(self.photo) #insert image
+        # self.photo2 = QPixmap(picture_path).scaledToHeight(250)
+        # self.label_image2.setPixmap(self.photo2)  # insert image
+
 
         # adding to container
         container.layout().addWidget(self.label, 0, 0, 1, 1)
         container.layout().addWidget(self.btn_open_csv,1,1,1,1)
         container.layout().addWidget(self.storage, 1, 0, 1, 1)  # place to hold the path of thr CSV
-        # container.layout().addWidget(self.Show_content, 3, 1, 1, 1)
         container.layout().addWidget(self.label3, 5, 0, 1, 1)
         container.layout().addWidget(self.btn_open_picture, 6, 1, 1, 1)
         container.layout().addWidget(self.dropdown_menu_storage_image_names, 6, 0, 1, 1)
-        container.layout().addWidget(self.Time_stamp_display, 7, 0, 1, 1)
+        container.layout().addWidget(self.btn_open_picture2, 7, 1, 1, 1)
+        container.layout().addWidget(self.dropdown_menu_storage_image_names2, 7, 0, 1, 1)
 
         container1.layout().addWidget(self.previous_picture, 0, 0, 0, 1)
         container1.layout().addWidget(self.label_image,0,1,1,1)
+        container1.layout().addWidget(self.label_image2, 1, 1, 1, 1)
         container1.layout().addWidget(self.next_picture, 0, 2, 0, 1)
 
-        container2.layout().addWidget(self.slider, 2, 0, 1, 0)
-
+        container2.layout().addWidget(self.Time_stamp_display, 1, 0, 1, 1)
+        container2.layout().addWidget(self.slider, 1, 1, 1, 1)
 
         container3.layout().addWidget(self.graphWidget, 1, 1, 1, 1)
         container3.layout().addWidget(self.Csv_dropdown_menu, 2, 1, 1, 1)
-        container3.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
-        container3.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
+        # container3.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
+        # container3.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
 
         self.layout().addWidget(container)
         self.layout().addWidget(container1)
@@ -95,20 +101,21 @@ class MainWindow(qtw.QWidget):
 # opens csv file search box
     def QPushButton_clicked(self):
 
+        # action after clicking search csv file button
         CSV_path = QFileDialog().getOpenFileNames(parent=None, caption='select csv file', filter="csv(*.csv)")
-
-        # dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
-
         CSV_path_str = CSV_path[0][0]
         self.storage.clear()
-        self.storage.setText(CSV_path_str) #store path in temporary widget
+
+        # store csv path in storage widget
+        self.storage.setText(CSV_path_str)
         dff = pd.read_csv(CSV_path_str)
+
+        #get headers from csv file , taking first headers out (timestamp)
         headers = dff.columns.tolist()
         headers.pop(0)
 
-        self.Csv_dropdown_menu.clear()
-
         # add headers to drop down list
+        self.Csv_dropdown_menu.clear()
         for header in headers:
             self.Csv_dropdown_menu.addItem(header)
 
@@ -150,6 +157,9 @@ class MainWindow(qtw.QWidget):
             self.graphWidget.plot(Xdata, Ydata, pen=(255, 0, 0), name="Red curve",clear=True)  # add timestamp
             self.plot_grapth(self.graphWidget, time_stamps_from_storage,data_from_storage, clear)
 
+         #update second picture
+        self.dropdown_menu_storage_image_names2.setCurrentIndex(self.dropdown_menu_storage_image_names.currentIndex())
+
 
     def get_data_from_file(self , path,header):
         dff = pd.read_csv(path)
@@ -186,27 +196,61 @@ class MainWindow(qtw.QWidget):
 
         #first image to show
         picture_path = os.path.join(picture_folder_path,file_names[0])
-        self.photo = QPixmap(picture_path).scaledToHeight(450)
+        scale = int(self.storage_picture_scale.text())
+        self.photo = QPixmap(picture_path).scaledToHeight(scale)
         self.label_image.setPixmap(self.photo) #insert image
+
+    def show_picture2(self):
+        #selec folder with images
+        print("show_picture clicked2")
+        picture_folder_path = QFileDialog.getExistingDirectory(None, 'Select a folder:')
+        file_names = os.listdir(picture_folder_path)
+        file_names.sort()
+        print(file_names)
+
+        #store image names in combo dropdown list
+        self.dropdown_menu_storage_image_names2.clear()
+        for file_name in file_names:
+            self.dropdown_menu_storage_image_names2.addItem(os.path.join(picture_folder_path,file_name))
+
+        #first image to show
+        picture_path = os.path.join(picture_folder_path,file_names[0])
+        self.storage_picture_scale.setText("250") #update scale
+        scale = int(self.storage_picture_scale.text())
+        self.Dropdown_image_activated() #update scale of first image
+        self.photo2 = QPixmap(picture_path).scaledToHeight(scale)
+        self.label_image2.setPixmap(self.photo2) #insert image
 
 
     def Dropdown_image_activated(self):
         #update list
-        self.photo = QPixmap(self.dropdown_menu_storage_image_names.currentText()).scaledToHeight(450)
+        scale = int(self.storage_picture_scale.text())
+        self.photo = QPixmap(self.dropdown_menu_storage_image_names.currentText()).scaledToHeight(scale)
         self.label_image.setPixmap(self.photo)#insert image
         print("Dropdown_image_activated")
         self.Csv_dropdown_menu_activated_update()
+
+    def Dropdown_image_activated2(self):
+        #update list
+        scale = int(self.storage_picture_scale.text())
+        self.photo2 = QPixmap(self.dropdown_menu_storage_image_names2.currentText()).scaledToHeight(scale)
+        self.label_image2.setPixmap(self.photo2)#insert image
+        print("Dropdown_image_activated2")
+        # self.Csv_dropdown_menu_activated_update()
 
     def slider_move(self):
         number_of_items = self.dropdown_menu_storage_image_names.count()
         self.dropdown_menu_storage_image_names.setCurrentIndex(round(self.slider.value() / 100 * number_of_items))
         self.Dropdown_image_activated()
+        self.Dropdown_image_activated2()
         print(self.slider.value())
 
     def next_picture(self):
         # update image
         self.dropdown_menu_storage_image_names.setCurrentIndex(self.dropdown_menu_storage_image_names.currentIndex() + 1)
         self.Dropdown_image_activated()
+        self.Dropdown_image_activated2()
+
         #update slider
         number_of_items = self.dropdown_menu_storage_image_names.count()
         current_item_index = self.dropdown_menu_storage_image_names.currentIndex()
@@ -217,6 +261,7 @@ class MainWindow(qtw.QWidget):
         if next_picture >= 0:
             self.dropdown_menu_storage_image_names.setCurrentIndex(next_picture)
             self.Dropdown_image_activated()
+            self.Dropdown_image_activated2()
 
         #update slider
         number_of_items = self.dropdown_menu_storage_image_names.count()
@@ -231,6 +276,13 @@ class MainWindow(qtw.QWidget):
             return data
         else:
             return []
+
+
+
+class parameters():
+    # init method or constructor
+    def __init__(self, scale):
+        self.scale = scale
 
 
 
