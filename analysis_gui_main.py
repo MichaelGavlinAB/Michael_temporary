@@ -46,7 +46,7 @@ class MainWindow(qtw.QWidget):
         self.storage =  qtw.QLineEdit() #store temporary path ones clicked to be passed between functions
         self.storage_CSV_data =  qtw.QTextEdit() #store temporary string of data
         self.Time_stamp_display = qtw.QLabel(" Time stamp: ")
-        self.storage_CSV_timestamps = qtw.QLineEdit()  # store temporary string of data
+        self.storage_CSV_timestamps = qtw.QTextEdit()  # store temporary string of data
         self.graphWidget = pg.PlotWidget() #plot
         self.graphWidget.showGrid(x=True, y=True)
         self.photo = QPixmap() #insert image path in this object
@@ -84,8 +84,8 @@ class MainWindow(qtw.QWidget):
 
         container3.layout().addWidget(self.graphWidget, 1, 1, 1, 1)
         container3.layout().addWidget(self.Csv_dropdown_menu, 2, 1, 1, 1)
-        # container3.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
-        # container3.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
+        container3.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
+        container3.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
 
         self.layout().addWidget(container)
         self.layout().addWidget(container1)
