@@ -32,6 +32,14 @@ class MainWindow(qtw.QWidget):
         container3 = qtw.QWidget()
         container3.setLayout(qtw.QGridLayout())
 
+        container_side_widgets = qtw.QWidget()
+        container_side_widgets.setLayout(qtw.QGridLayout())
+
+        container_side_by_side_layout = qtw.QWidget()
+        container_side_by_side_layout.setLayout(qtw.QGridLayout())
+
+
+
         container4_debug = qtw.QWidget()
         container4_debug.setLayout(qtw.QGridLayout())
 
@@ -44,14 +52,19 @@ class MainWindow(qtw.QWidget):
         self.btn_open_picture = qtw.QPushButton('open images folder from mapi', clicked=self.show_picture)
         self.btn_open_csv = qtw.QPushButton('click here to choose a csv file',clicked =self.QPushButton_clicked)
         self.btn_open_picture2 = qtw.QPushButton('optional -  open images folder to compare', clicked=self.show_picture2)
+        self.btn_open_picture2.setHidden(1)
         self.next_picture = qtw.QPushButton('-->', clicked=self.next_picture)
         self.previous_picture = qtw.QPushButton('<--', clicked=self.previous_picture)
+        self.add_another_picture = qtw.QPushButton('hide / unhide second picture', clicked=self.hide_unhide_second_picture)
 
         # Drop down menu (Qcombo)
         self.Csv_dropdown_menu = qtw.QComboBox()
         self.Csv_dropdown_menu.activated.connect(self.Csv_dropdown_menu_activated)# adding action to combo box
         self.dropdown_menu_storage_image_names = qtw.QComboBox()
         self.dropdown_menu_storage_image_names.activated.connect(self.Dropdown_image_activated) # adding action to combo box
+        self.dropdown_menu_storage_image_names2 = qtw.QComboBox()
+        self.dropdown_menu_storage_image_names2.setHidden(1)
+        self.dropdown_menu_storage_image_names2.activated.connect(self.Dropdown_image_activated2) # adding action to combo box
 
         # storage widgets , keep data
         self.storage =  qtw.QLineEdit() #store temporary path ones clicked to be passed between functions
@@ -70,26 +83,33 @@ class MainWindow(qtw.QWidget):
 
 
         self.picture_frame_scene2 = qtw.QGraphicsScene(self)  # set 2nd picture frame scene
-        self.photo = QPixmap('/home/michael/Pictures/2022-05-26_17-47.png') #insert image path in this object
+        # self.photo = QPixmap('/home/michael/Pictures/2022-05-26_17-47.png') #insert image path in this object
         self.photo2 = QPixmap()  # insert image path in this object
-        item = qtw.QGraphicsPixmapItem(self.photo)
+        # item = qtw.QGraphicsPixmapItem(self.photo)
         self.picture_frame_scene = qtw.QGraphicsScene(self) #set picture frame scene
-        self.picture_frame_scene.addItem(item)
+        # self.picture_frame_scene.addItem(item)
         self.picture_frame = qtw.QGraphicsView(self.picture_frame_scene) #final item add to display image
         self.picture_frame2 = qtw.QGraphicsView(self.picture_frame_scene2)  # final item add to display image
-        self.picture_frame.setFixedSize(1500,300)
-        self.picture_frame2.setFixedSize(1500,300)
+        self.picture_frame2.setHidden(1)
+        self.picture_frame.setFixedSize(1700,500)
         self.label_image = QLabel() #insert image
         self.label_image2 = QLabel() #insert image
 
 
-        # drop down menu widget
-        self.dropdown_menu_storage_image_names2 = qtw.QComboBox()
-        self.dropdown_menu_storage_image_names2.activated.connect(self.Dropdown_image_activated2) # adding action to combo box
+
 
         # slider widget
         self.slider = qtw.QSlider(1) #slider
         self.slider.valueChanged.connect(self.slider_move)
+
+
+        # dial widget
+        self.scale_dial = qtw.QDial()
+        self.scale_dial.setMaximum(700)
+        self.scale_dial.setMinimum(50)
+        self.scale_dial.setValue(450)
+        self.scale_dial.valueChanged.connect(self.scale_dial_activated)
+
 
 
         # adding widgets to main layout
@@ -99,23 +119,30 @@ class MainWindow(qtw.QWidget):
         container.layout().addWidget(self.label3, 5, 0, 1, 1)
         container.layout().addWidget(self.btn_open_picture, 6, 1, 1, 1)
         container.layout().addWidget(self.dropdown_menu_storage_image_names, 6, 0, 1, 1)
-        container.layout().addWidget(self.btn_open_picture2, 7, 1, 1, 1)
-        container.layout().addWidget(self.dropdown_menu_storage_image_names2, 7, 0, 1, 1)
+        container.layout().addWidget(self.add_another_picture, 7, 1, 1, 1)
+        container.layout().addWidget(self.btn_open_picture2, 8, 1, 1, 1)
+        container.layout().addWidget(self.dropdown_menu_storage_image_names2, 8, 0, 1, 1)
 
-        container1.layout().addWidget(self.previous_picture, 0, 0, 0, 1)
-        # container1.layout().addWidget(self.label_image,0,1,1,1)
+
+
         container1.layout().addWidget(self.picture_frame,0,1,1,1)
         container1.layout().addWidget(self.picture_frame2, 1, 1, 1, 1)
-        container1.layout().addWidget(self.next_picture, 0, 2, 0, 1)
+        container1.layout().addWidget(self.scale_dial, 1, 0, 1, 1)
+        container1.layout().addWidget(self.storage_picture_scale, 0, 0, 1, 1)
 
-        container2.layout().addWidget(self.Time_stamp_display, 1, 0, 1, 1)
-        container2.layout().addWidget(self.slider, 1, 1, 1, 1)
+
+        container2.layout().addWidget(self.Time_stamp_display, 0, 0, 1, 1)
+        container2.layout().addWidget(self.previous_picture, 0, 1, 1, 1)
+        container2.layout().addWidget(self.slider, 0, 2, 1, 1)
+        container2.layout().addWidget(self.next_picture, 0, 3, 1, 1)
 
         container3.layout().addWidget(self.graphWidget, 1, 1, 1, 1)
         container3.layout().addWidget(self.Csv_dropdown_menu, 2, 1, 1, 1)
 
+
         #debug cstorage containers
-        container4_debug.layout().addWidget(self.storage_picture_scale, 1, 1, 1, 1)
+        # container4_debug.layout().addWidget(self.storage_picture_scale, 1, 1, 1, 1)
+        # container4_debug.layout().addWidget(self.scale_dial, 1, 1, 1, 1)
         # container4_debug.layout().addWidget(self.picture_frame, 1, 1, 1, 1)
         # container4_debug.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
         # container4_debug.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
@@ -342,6 +369,31 @@ class MainWindow(qtw.QWidget):
             return data
         else:
             return []
+
+    def scale_dial_activated(self):
+        # print(self.scale_dial.value())
+        self.storage_picture_scale.setText(str(self.scale_dial.value()))
+        self.Dropdown_image_activated()
+        self.Dropdown_image_activated2()
+
+    def hide_unhide_second_picture(self):
+        #add new image
+        if self.picture_frame2.isHidden():
+            #unhide second image to compare widgets
+            self.picture_frame2.setHidden(0)
+            self.dropdown_menu_storage_image_names2.setHidden(0)
+            self.btn_open_picture2.setHidden(0)
+            self.picture_frame.setFixedSize(1500,300)
+            self.picture_frame2.setFixedSize(1500,300)
+        else:
+            #hide second image to compare widgets
+            self.picture_frame2.setHidden(1)
+            self.dropdown_menu_storage_image_names2.setHidden(1)
+            self.btn_open_picture2.setHidden(1)
+            self.picture_frame.setFixedSize(1700,500)
+
+
+
 
 
 if __name__ == "__main__":
