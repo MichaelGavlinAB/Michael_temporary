@@ -1,6 +1,6 @@
 import PyQt5.QtWidgets as qtw
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import   QApplication, QLabel , QWidget , QPushButton , QVBoxLayout ,QMessageBox ,QFileDialog,QSizePolicy ,QComboBox,QMainWindow
+from PyQt5.QtWidgets import   QApplication, QLabel , QWidget , QPushButton , QVBoxLayout ,QMessageBox ,QFileDialog,QSizePolicy ,QComboBox,QMainWindow , QCompleter
 import pandas as pd
 import pyqtgraph as pg
 from PyQt5.QtGui import QPixmap , QKeySequence
@@ -12,7 +12,8 @@ class MainWindow(qtw.QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("System engineering")
-        self.setLayout(qtw.QVBoxLayout())
+        # self.setLayout(qtw.QVBoxLayout())
+        self.setLayout(qtw.QGridLayout())
         self.MyUI()
         self.resize(1500, 1300)
         self.show()
@@ -43,13 +44,14 @@ class MainWindow(qtw.QWidget):
         container4_debug = qtw.QWidget()
         container4_debug.setLayout(qtw.QGridLayout())
 
-        # labels (Qlabel)
+        # labels and display (Qlabel)
         self.label = QLabel("1. Choose CSV file")
         self.label3 = QLabel("4. select a folder with images to show'")
-        self.Time_stamp_display = qtw.QLabel(" Time stamp: ")
+        self.Time_stamp_display = qtw.QLCDNumber(14)
 
         # push Buttons (QPushButton)
         self.btn_open_picture = qtw.QPushButton('open images folder from mapi', clicked=self.show_picture)
+        self.btn_reset_scale = qtw.QPushButton('reset scale', clicked=self.btn_reset_scale)
         self.btn_open_csv = qtw.QPushButton('click here to choose a csv file',clicked =self.QPushButton_clicked)
         self.btn_open_picture2 = qtw.QPushButton('optional -  open images folder to compare', clicked=self.show_picture2)
         self.btn_open_picture2.setHidden(1)
@@ -72,7 +74,9 @@ class MainWindow(qtw.QWidget):
         self.storage_CSV_data =  qtw.QTextEdit() #store temporary string of data
         self.storage_CSV_timestamps = qtw.QTextEdit()  # store temporary string of data
         self.storage_picture_scale.setText("450") # init scale
-        scale = int (self.storage_picture_scale.text())
+        self.search_bar = qtw.QLineEdit('search bar')  # search bar
+        self.search_bar.textChanged.connect(self.search_bar_activated)
+
 
         #   plot widgets
         self.graphWidget = pg.PlotWidget() #plot
@@ -80,14 +84,9 @@ class MainWindow(qtw.QWidget):
 
         # image display
         # init first picture
-
-
         self.picture_frame_scene2 = qtw.QGraphicsScene(self)  # set 2nd picture frame scene
-        # self.photo = QPixmap('/home/michael/Pictures/2022-05-26_17-47.png') #insert image path in this object
         self.photo2 = QPixmap()  # insert image path in this object
-        # item = qtw.QGraphicsPixmapItem(self.photo)
         self.picture_frame_scene = qtw.QGraphicsScene(self) #set picture frame scene
-        # self.picture_frame_scene.addItem(item)
         self.picture_frame = qtw.QGraphicsView(self.picture_frame_scene) #final item add to display image
         self.picture_frame2 = qtw.QGraphicsView(self.picture_frame_scene2)  # final item add to display image
         self.picture_frame2.setHidden(1)
@@ -96,46 +95,49 @@ class MainWindow(qtw.QWidget):
         self.label_image2 = QLabel() #insert image
 
 
-
-
         # slider widget
         self.slider = qtw.QSlider(1) #slider
         self.slider.valueChanged.connect(self.slider_move)
 
+        # completer
+        # self.completer = QCompleter(widget_names)
+
 
         # dial widget
         self.scale_dial = qtw.QDial()
-        self.scale_dial.setMaximum(700)
-        self.scale_dial.setMinimum(50)
+        self.scale_dial.setMaximum(800)
+        self.scale_dial.setMinimum(200)
         self.scale_dial.setValue(450)
+        self.scale_dial.setFixedSize(80,100)
         self.scale_dial.valueChanged.connect(self.scale_dial_activated)
-
 
 
         # adding widgets to main layout
         container.layout().addWidget(self.label, 0, 0, 1, 1)
-        container.layout().addWidget(self.btn_open_csv,1,1,1,1)
-        container.layout().addWidget(self.storage, 1, 0, 1, 1)  # place to hold the path of thr CSV
-        container.layout().addWidget(self.label3, 5, 0, 1, 1)
-        container.layout().addWidget(self.btn_open_picture, 6, 1, 1, 1)
-        container.layout().addWidget(self.dropdown_menu_storage_image_names, 6, 0, 1, 1)
-        container.layout().addWidget(self.add_another_picture, 7, 1, 1, 1)
-        container.layout().addWidget(self.btn_open_picture2, 8, 1, 1, 1)
-        container.layout().addWidget(self.dropdown_menu_storage_image_names2, 8, 0, 1, 1)
-
-
+        container.layout().addWidget(self.storage, 0, 1, 1, 1)  # place to hold the path of thr CSV
+        container.layout().addWidget(self.btn_open_csv,0,2,1,1)
+        container.layout().addWidget(self.label3, 1, 0, 1, 1)
+        container.layout().addWidget(self.dropdown_menu_storage_image_names, 1, 1, 1, 1)
+        container.layout().addWidget(self.btn_open_picture, 1, 2, 1, 1)
+        container.layout().addWidget(self.add_another_picture, 1, 3, 1, 1)
+        container.layout().addWidget(self.dropdown_menu_storage_image_names2, 2, 1, 1, 1)
+        container.layout().addWidget(self.btn_open_picture2, 2, 2, 1, 1)
 
         container1.layout().addWidget(self.picture_frame,0,1,1,1)
         container1.layout().addWidget(self.picture_frame2, 1, 1, 1, 1)
-        container1.layout().addWidget(self.scale_dial, 1, 0, 1, 1)
-        container1.layout().addWidget(self.storage_picture_scale, 0, 0, 1, 1)
 
 
-        container2.layout().addWidget(self.Time_stamp_display, 0, 0, 1, 1)
+        # container2.layout().addWidget(self.Time_stamp_display, 0, 0, 1, 1)
         container2.layout().addWidget(self.previous_picture, 0, 1, 1, 1)
         container2.layout().addWidget(self.slider, 0, 2, 1, 1)
         container2.layout().addWidget(self.next_picture, 0, 3, 1, 1)
 
+        container_side_widgets.layout().addWidget(self.Time_stamp_display,0,0,1,1)
+        container_side_widgets.layout().addWidget(self.scale_dial, 1, 0, 1, 1)
+        container_side_widgets.layout().addWidget(self.storage_picture_scale, 2, 0, 1, 1)
+        container_side_widgets.layout().addWidget(self.btn_reset_scale, 3, 0, 1, 1)
+
+        container3.layout().addWidget(self.search_bar, 0, 1, 1, 1)
         container3.layout().addWidget(self.graphWidget, 1, 1, 1, 1)
         container3.layout().addWidget(self.Csv_dropdown_menu, 2, 1, 1, 1)
 
@@ -148,11 +150,12 @@ class MainWindow(qtw.QWidget):
         # container4_debug.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
 
         # adding containers to main layout
-        self.layout().addWidget(container)
-        self.layout().addWidget(container1)
-        self.layout().addWidget(container2)
-        self.layout().addWidget(container3)
-        self.layout().addWidget(container4_debug)
+        self.layout().addWidget(container,0,1,1,1)
+        self.layout().addWidget(container1,1,1,1,1)
+        self.layout().addWidget(container_side_widgets, 1, 0, 1, 1)
+        self.layout().addWidget(container2,2,1,1,1)
+        self.layout().addWidget(container3,3,1,1,1)
+        self.layout().addWidget(container4_debug,4,1,1,1)
 
 # opens csv file search box
     def QPushButton_clicked(self):
@@ -201,14 +204,13 @@ class MainWindow(qtw.QWidget):
         # get current timestamp from image file name
         current_time_string = self.dropdown_menu_storage_image_names.currentText()[-20:-4] # get time from dropdown list
 
-        # update timestamp display widget
-        self.Time_stamp_display.setText(" Time stamp:" + current_time_string)
-
         # convert timestamp to float
         if current_time_string.isnumeric():
             current_time = float(current_time_string)
         else:
             current_time = 0
+
+        self.Time_stamp_display.display(current_time_string)
 
         # get timestamps and data from storage widget and convert to numeric list
         time_stamps_from_storage = self.string_to_list(self.storage_CSV_timestamps.toPlainText())# get data from dropdown list
@@ -383,14 +385,23 @@ class MainWindow(qtw.QWidget):
             self.picture_frame2.setHidden(0)
             self.dropdown_menu_storage_image_names2.setHidden(0)
             self.btn_open_picture2.setHidden(0)
-            self.picture_frame.setFixedSize(1500,300)
-            self.picture_frame2.setFixedSize(1500,300)
+            self.picture_frame.setFixedSize(1500,260)
+            self.picture_frame2.setFixedSize(1500,260)
         else:
             #hide second image to compare widgets
             self.picture_frame2.setHidden(1)
             self.dropdown_menu_storage_image_names2.setHidden(1)
             self.btn_open_picture2.setHidden(1)
             self.picture_frame.setFixedSize(1700,500)
+
+    def btn_reset_scale(self):
+        self.storage_picture_scale.setText('450')
+        self.Dropdown_image_activated()
+        self.Dropdown_image_activated2()
+
+    def search_bar_activated(self):
+        print("dsfsd")
+
 
 
 
