@@ -13,7 +13,7 @@ print(qtw.QStyleFactory.keys())
 class MainWindow(qtw.QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("MTS \ Mapi analysis tool")
+        self.setWindowTitle("MTS & Mapi analysis platform")
         self.setLayout(qtw.QGridLayout())
         self.myui()
         # self.resize(1500, 1300)
@@ -25,49 +25,82 @@ class MainWindow(qtw.QWidget):
     def myui(self):
 
         #define layout containers
+        # container = qtw.QWidget()
+        tab_container = qtw.QTabWidget()
+
+
+        container_main = qtw.QWidget()
+        container_main.setLayout(qtw.QGridLayout())
+
         container = qtw.QWidget()
         container.setLayout(qtw.QGridLayout())
 
-        container1 = qtw.QWidget()
+        container1 = qtw.QGroupBox()
         container1.setLayout(qtw.QGridLayout())
 
-        container2 = qtw.QWidget()
+        container2 = qtw.QGroupBox()
         container2.setLayout(qtw.QGridLayout())
 
-        container3 = qtw.QWidget()
+        container3 = qtw.QGroupBox()
         container3.setLayout(qtw.QGridLayout())
 
-        container_side_widgets = qtw.QWidget()
+        container_side_widgets = qtw.QGroupBox()
         container_side_widgets.setLayout(qtw.QGridLayout())
 
-        container_side_by_side_layout = qtw.QWidget()
+        container_side_by_side_layout = qtw.QGroupBox()
         container_side_by_side_layout.setLayout(qtw.QGridLayout())
 
-        container4 = qtw.QWidget()
+        container4 = qtw.QGroupBox()
         container4.setLayout(qtw.QGridLayout())
 
-        container5 = qtw.QWidget()
+        container5 = qtw.QGroupBox()
         container5.setLayout(qtw.QGridLayout())
 
-        container4_debug = qtw.QWidget()
+        container4_debug = qtw.QGroupBox()
         container4_debug.setLayout(qtw.QGridLayout())
+
+        info_tab = qtw.QWidget()
+        info_tab.setLayout(qtw.QGridLayout())
+
+        Mapi_tab = qtw.QWidget()
+        Mapi_tab.setLayout(qtw.QGridLayout())
+
+
 
 
         # labels and display (Qlabel)
-        self.label = QLabel("1. Choose CSV file")
-        self.label3 = QLabel("4. select a folder with images to show'")
+        self.label =  QLabel("1. Choose CSV file                    ")
+        self.label3 = QLabel("2. select a folder with images to show")
+        self.label4 = QLabel("3. to download completed session , enter mapi session name")
+        self.label4.setAlignment(Qt.AlignTop)
+        self.mapi_session_path = qtw.QLineEdit("mapi session")
+        self.mapi_session_path.setAlignment
         self.Time_stamp_display = qtw.QLineEdit()
         self.Time_stamp_display.returnPressed.connect(self.Time_stamp_display_pressed)
         self.Time_stamp_display.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
         self.Time_stamp_display_real_time = qtw.QLabel()
-        # self.Time_stamp_display_real_time.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.display_search_results = qtw.QListWidget()
         self.display_search_results.itemDoubleClicked.connect(self.display_search_results_clicked)
         self.display_search_results.hide()
 
+        #logo
+        self.logo = QPixmap(logo_path)
+        self.logo_label = qtw.QLabel()
+        self.logo_label.setAlignment(Qt.AlignCenter)
+        self.logo_label.setPixmap(self.logo)
+
+
+
+        #text box second tab
+        self.info_text_box = qtw.QLabel(text) #dext defined as global in main
+        self.info_text_box.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.info_text_box_scroll_area = qtw.QScrollArea()
+        self.info_text_box_scroll_area.setWidget(self.info_text_box)
+        self.info_text_box.setAlignment(Qt.AlignTop)
+
 
         # push Buttons (QPushButton)
-        self.btn_open_picture = qtw.QPushButton('open images folder from mapi', clicked=self.show_picture)
+        self.btn_open_picture = qtw.QPushButton('open existing images folder', clicked=self.show_picture)
         self.btn_reset_scale = qtw.QPushButton('reset scale', clicked=self.btn_reset_scale)
         self.btn_open_csv = qtw.QPushButton('click here to choose a csv file',clicked =self.QPushButton_clicked)
         self.btn_open_picture2 = qtw.QPushButton('open images folder to compare', clicked=self.show_picture2)
@@ -113,7 +146,7 @@ class MainWindow(qtw.QWidget):
         self.picture_frame_scene2 = qtw.QGraphicsScene(self)  # set 2nd picture frame scene
         self.picture_frame = qtw.QGraphicsView(self.picture_frame_scene) #final item add to display image
         self.picture_frame2 = qtw.QGraphicsView(self.picture_frame_scene2)  # final item add to display image
-        self.picture_frame.setFixedSize(1700,500)
+        self.picture_frame.setFixedSize(1650,450)
         self.picture_frame2.setHidden(1)
         self.label_image = QLabel() #insert image
         self.label_image2 = QLabel() #insert image
@@ -128,7 +161,7 @@ class MainWindow(qtw.QWidget):
         self.scale_dial.setMaximum(800)
         self.scale_dial.setMinimum(200)
         self.scale_dial.setValue(450)
-        self.scale_dial.setFixedSize(80,100)
+        self.scale_dial.setFixedSize(100,100)
         self.scale_dial.valueChanged.connect(self.scale_dial_activated)
 
 
@@ -219,29 +252,25 @@ class MainWindow(qtw.QWidget):
         self.search_bar.setSizePolicy(policy_a,policy_b)
         self.Csv_dropdown_menu.setSizePolicy(policy_a,policy_b)
         self.graphWidget.setSizePolicy(policy_a,policy_C)
-
         self.search_bar1.setSizePolicy(policy_a,policy_b)
         self.Csv_dropdown_menu1.setSizePolicy(policy_a,policy_b)
         self.graphWidget1.setSizePolicy(policy_a,policy_C)
-
         self.search_bar2.setSizePolicy(policy_a, policy_b)
         self.Csv_dropdown_menu2.setSizePolicy(policy_a, policy_b)
         self.graphWidget2.setSizePolicy(policy_a, policy_C)
-
         self.search_bar3.setSizePolicy(policy_a,policy_b)
         self.Csv_dropdown_menu3.setSizePolicy(policy_a,policy_b)
         self.graphWidget3.setSizePolicy(policy_a,policy_C)
-
         self.search_bar4.setSizePolicy(policy_a,policy_b)
         self.Csv_dropdown_menu4.setSizePolicy(policy_a,policy_b)
         self.graphWidget4.setSizePolicy(policy_a,policy_C)
-
         self.search_bar5.setSizePolicy(policy_a,policy_b)
         self.Csv_dropdown_menu5.setSizePolicy(policy_a,policy_b)
         self.graphWidget5.setSizePolicy(policy_a,policy_C)
 
 
-        # adding widgets to main layout
+        # adding widgets to main and tab layout
+        # container.layout().addWidget(self.logo_label, 0, 0, 1, 1)
         container.layout().addWidget(self.label, 0, 0, 1, 1)
         container.layout().addWidget(self.storage, 0, 1, 1, 1)  # place to hold the path of thr CSV
         container.layout().addWidget(self.btn_open_csv,0,2,1,1)
@@ -255,18 +284,15 @@ class MainWindow(qtw.QWidget):
         container1.layout().addWidget(self.picture_frame,0,1,1,1)
         container1.layout().addWidget(self.picture_frame2, 1, 1, 1, 1)
 
-        # container2.layout().addWidget(self.Time_stamp_display, 0, 0, 1, 1)
         container2.layout().addWidget(self.previous_picture, 0, 1, 1, 1)
         container2.layout().addWidget(self.slider, 0, 2, 1, 1)
         container2.layout().addWidget(self.next_picture, 0, 3, 1, 1)
 
-        # container_side_widgets.layout().addWidget(self.Time_stamp_display,0,0,1,1)
         container_side_widgets.layout().setAlignment(Qt.AlignTop)
         container_side_widgets.layout().addWidget(self.scale_dial, 1, 0, 1, 1)
         container_side_widgets.layout().addWidget(self.storage_picture_scale, 2, 0, 1, 1)
         container_side_widgets.layout().addWidget(self.btn_reset_scale, 3, 0, 1, 1)
         container_side_widgets.layout().addWidget(self.Time_stamp_display_real_time, 4, 0, 1, 1)
-
 
         container3.layout().addWidget(self.search_bar, 0, 0, 1, 1)
         container3.layout().addWidget(self.display_search_results, 1, 0, 1, 1)
@@ -306,9 +332,14 @@ class MainWindow(qtw.QWidget):
 
         container5.layout().addWidget(self.Time_stamp_display_real_time)
         container5.layout().addWidget(self.Time_stamp_display)
+        container5.layout().setAlignment(Qt.AlignHCenter)
 
+        # tab layouts
+        info_tab.layout().addWidget(self.info_text_box_scroll_area,0,0,1,1)
+        Mapi_tab.layout().addWidget(self.label4, 0, 0, 1, 1)
+        Mapi_tab.layout().addWidget(self.mapi_session_path, 1, 0, 1, 1)
 
-
+        # Mapi_tab.layout().addWidget()
 
 
         #debug cstorage containers
@@ -320,18 +351,42 @@ class MainWindow(qtw.QWidget):
         # container4_debug.layout().addWidget(self.display_search_results, 1, 1, 1, 1)
 
 
-        # adding containers to main layout
-        self.layout().addWidget(container,0,1,1,1)
-        self.layout().addWidget(container1,1,1,1,1)
-        self.layout().addWidget(container_side_widgets, 1, 0, 1, 1)
-        self.layout().addWidget(container2,2,1,1,1)
-        self.layout().addWidget(container3,3,1,1,1)
-        self.layout().addWidget(container4, 3, 0, 1, 1)
-        self.layout().addWidget(container5, 2, 0, 1, 1)
-        self.layout().addWidget(container4_debug,4,1,1,1)
+        # adding containers to tab main layout
+
+        container_main.layout().addWidget(self.logo_label, 0, 0, 1, 1)
+        container_main.layout().addWidget(container,0,1,1,1)
+        container_main.layout().addWidget(container1,1,1,1,1)
+        container_main.layout().addWidget(container_side_widgets, 1, 0, 1, 1)
+        container_main.layout().addWidget(container2,2,1,1,1)
+        container_main.layout().addWidget(container3,3,1,1,1)
+        container_main.layout().addWidget(container4, 3, 0, 1, 1)
+        container_main.layout().addWidget(container5, 2, 0, 1, 1)
+
+        #adding tab to tab container
+        tab_container.addTab(container_main , 'Main')
+        tab_container.addTab(Mapi_tab, 'Mapi')
+        tab_container.addTab(info_tab, 'Info')
+
+
+        #main layout
+        '''
+        add to main display -----------------------------------------------------------------------------------
+        '''
+        self.layout().addWidget(tab_container,0,0,0,0) # <<<
+
+
+        # self.layout().addWidget(container,0,1,1,1)
+        # self.layout().addWidget(container1,1,1,1,1)
+        # self.layout().addWidget(container_side_widgets, 1, 0, 1, 1)
+        # self.layout().addWidget(container2,2,1,1,1)
+        # self.layout().addWidget(container3,3,1,1,1)
+        # self.layout().addWidget(container4, 3, 0, 1, 1)
+        # self.layout().addWidget(container5, 2, 0, 1, 1)
+
+        # self.layout().addWidget(container4_debug,4,1,1,1)
 
 # opens csv file search box
-    def QPushButton_clicked(self):
+    def QPushButton_clicked(self) :
         '''
         function activated by QPushButton.
         * select csv file
@@ -416,23 +471,30 @@ class MainWindow(qtw.QWidget):
         clear = 1 #choose if previous plot should be cleared
         self.plot_grapth(graphWidget,time_stamps,data , clear)
 
+
     def Csv_dropdown_menu_activated_update(self):
         self.Csv_dropdown_menu_activated_update_function(self.dropdown_menu_storage_image_names , self.Time_stamp_display,self.graphWidget,self.storage_CSV_data)
+
 
     def Csv_dropdown_menu_activated_update1(self):
         self.Csv_dropdown_menu_activated_update_function(self.dropdown_menu_storage_image_names , self.Time_stamp_display,self.graphWidget1 , self.storage_CSV_data1)
 
+
     def Csv_dropdown_menu_activated_update2(self):
         self.Csv_dropdown_menu_activated_update_function(self.dropdown_menu_storage_image_names , self.Time_stamp_display,self.graphWidget2 , self.storage_CSV_data2)
+
 
     def Csv_dropdown_menu_activated_update3(self):
         self.Csv_dropdown_menu_activated_update_function(self.dropdown_menu_storage_image_names , self.Time_stamp_display,self.graphWidget3 , self.storage_CSV_data3)
 
+
     def Csv_dropdown_menu_activated_update4(self):
         self.Csv_dropdown_menu_activated_update_function(self.dropdown_menu_storage_image_names , self.Time_stamp_display,self.graphWidget4 , self.storage_CSV_data4)
 
+
     def Csv_dropdown_menu_activated_update5(self):
         self.Csv_dropdown_menu_activated_update_function(self.dropdown_menu_storage_image_names , self.Time_stamp_display,self.graphWidget5 , self.storage_CSV_data5)
+
 
     def Csv_dropdown_menu_activated_update_function(self , dropdown_menu_storage_image_names,Time_stamp_display,graphWidget , storage_CSV_data):
         print('Csv_dropdown_menu_activated_update_function')
@@ -492,6 +554,7 @@ class MainWindow(qtw.QWidget):
         data = dff[header].tolist()
         return time_stamp , data
 
+
     def plot_grapth(self,widget,x_data,y_data,clear):
         print('plot_grapth')
         '''
@@ -530,7 +593,6 @@ class MainWindow(qtw.QWidget):
         self.photo = QPixmap(picture_path).scaledToHeight(scale)
         self.picture_frame_scene.clear()
         self.picture_frame_scene.addPixmap(self.photo)
-
 
 
     def show_picture2(self):
@@ -580,7 +642,6 @@ class MainWindow(qtw.QWidget):
         self.Csv_dropdown_menu_activated_update5()
 
 
-
     def Dropdown_image_activated2(self):
         print('Dropdown_image_activated2')
         '''
@@ -592,6 +653,7 @@ class MainWindow(qtw.QWidget):
         self.photo = QPixmap(self.dropdown_menu_storage_image_names2.currentText()).scaledToHeight(scale)
         self.picture_frame_scene2.clear()
         self.picture_frame_scene2.addPixmap(self.photo)
+
 
     def slider_move(self):
         print('slider_move')
@@ -605,6 +667,7 @@ class MainWindow(qtw.QWidget):
         self.Dropdown_image_activated2()
         print(self.slider.value())
 
+
     def next_picture(self):
         print('next_picture')
         '''
@@ -617,7 +680,6 @@ class MainWindow(qtw.QWidget):
         self.Dropdown_image_activated2()
 
         self.update_slider(self.dropdown_menu_storage_image_names.currentIndex())
-
 
 
     def previous_picture(self):
@@ -637,6 +699,7 @@ class MainWindow(qtw.QWidget):
         current_item_index = self.dropdown_menu_storage_image_names.currentIndex()
         self.slider.setValue(current_item_index/number_of_items*100)
 
+
     def string_to_list(self,string_data):
         print('string_to_list')
         '''
@@ -653,6 +716,7 @@ class MainWindow(qtw.QWidget):
         else:
             return []
 
+
     def scale_dial_activated(self):
         print('scale_dial_activated')
         '''
@@ -662,6 +726,7 @@ class MainWindow(qtw.QWidget):
         self.storage_picture_scale.setText(str(self.scale_dial.value()))
         self.Dropdown_image_activated()
         self.Dropdown_image_activated2()
+
 
     def hide_unhide_second_picture(self):
         print('hide_unhide_second_picture')
@@ -687,6 +752,7 @@ class MainWindow(qtw.QWidget):
             self.picture_frame.setFixedSize(1700,500)
             self.add_another_picture.setText('+')
 
+
     def btn_reset_scale(self):
         print('btn_reset_scale')
         '''
@@ -696,23 +762,30 @@ class MainWindow(qtw.QWidget):
         self.Dropdown_image_activated()
         self.Dropdown_image_activated2()
 
+
     def search_bar_activated(self):
         self.search_bar_activated_function(self.search_bar,self.display_search_results,self.Csv_dropdown_menu)
+
 
     def search_bar_activated1(self):
         self.search_bar_activated_function(self.search_bar1,self.display_search_results1,self.Csv_dropdown_menu1)
 
+
     def search_bar_activated2(self):
         self.search_bar_activated_function(self.search_bar2,self.display_search_results2,self.Csv_dropdown_menu2)
+
 
     def search_bar_activated3(self):
         self.search_bar_activated_function(self.search_bar3,self.display_search_results3,self.Csv_dropdown_menu3)
 
+
     def search_bar_activated4(self):
         self.search_bar_activated_function(self.search_bar4,self.display_search_results4,self.Csv_dropdown_menu4)
 
+
     def search_bar_activated5(self):
         self.search_bar_activated_function(self.search_bar5,self.display_search_results5,self.Csv_dropdown_menu5)
+
 
     def search_bar_activated_function(self,search_bar,display_search_results,Csv_dropdown_menu):
         print('search_bar_activated_function')
@@ -755,23 +828,30 @@ class MainWindow(qtw.QWidget):
         else:
             display_search_results.hide()
 
+
     def display_search_results_clicked(self , item):
         self.display_search_results_clicked_function(self.Csv_dropdown_menu,item,self.Csv_dropdown_menu_activated,self.display_search_results,self.search_bar)
+
 
     def display_search_results_clicked1(self , item):
         self.display_search_results_clicked_function(self.Csv_dropdown_menu1,item,self.Csv_dropdown_menu_activated1,self.display_search_results1,self.search_bar1)
 
+
     def display_search_results_clicked2(self , item):
         self.display_search_results_clicked_function(self.Csv_dropdown_menu2,item,self.Csv_dropdown_menu_activated2,self.display_search_results2,self.search_bar2)
+
 
     def display_search_results_clicked3(self , item):
         self.display_search_results_clicked_function(self.Csv_dropdown_menu3,item,self.Csv_dropdown_menu_activated3,self.display_search_results3,self.search_bar3)
 
+
     def display_search_results_clicked4(self , item):
         self.display_search_results_clicked_function(self.Csv_dropdown_menu4,item,self.Csv_dropdown_menu_activated4,self.display_search_results4,self.search_bar4)
 
+
     def display_search_results_clicked5(self , item):
         self.display_search_results_clicked_function(self.Csv_dropdown_menu5,item,self.Csv_dropdown_menu_activated5,self.display_search_results5,self.search_bar5)
+
 
     def display_search_results_clicked_function(self,Csv_dropdown_menu,item,Csv_dropdown_menu_activated,display_search_results,search_bar):
         print('display_search_results_clicked_function')
@@ -792,6 +872,7 @@ class MainWindow(qtw.QWidget):
         Csv_dropdown_menu_activated()
         display_search_results.hide()
         search_bar.clear()
+
 
     def add_another_plot(self):
         '''
@@ -828,6 +909,7 @@ class MainWindow(qtw.QWidget):
 
             return
 
+
     def remove_plot(self):
         print('remove_plot')
         '''
@@ -860,14 +942,15 @@ class MainWindow(qtw.QWidget):
             self.graphWidget1.hide()
             return
 
+
     def update_slider(self , current_item_index):
         '''
-
         :param current_item_index: index of the desired picture out of all pictures
         :return:
         '''
         number_of_items = self.dropdown_menu_storage_image_names.count()
         self.slider.setValue(current_item_index/number_of_items*100)
+
 
     def Time_stamp_display_pressed(self):
         print("Time_stamp_display_pressed")
@@ -896,6 +979,7 @@ class MainWindow(qtw.QWidget):
             index += 1
             print(index)
 
+
     def storage_picture_scale_pressed(self):
         '''
         update picture size if scale changed manually using text
@@ -904,13 +988,20 @@ class MainWindow(qtw.QWidget):
         self.Dropdown_image_activated2()
 
 
-
         # time_stamps_from_storage = self.string_to_list(self.storage_CSV_timestamps.toPlainText())# get data from dropdown list
         # print(time_stamps_from_storage)
 
 
-
 if __name__ == "__main__":
+
+    #read text from file mto form manual
+    text_path = 'text.txt'
+    logo_path = 'logo.png'
+    with open(text_path) as f:
+        lines = f.readlines()
+    text = ' '.join(lines) #uses as global info
+    text = 'info file path: ' + text_path + '\n\n' + text
+
     app = qtw.QApplication([])
     mw = MainWindow()
     app.setStyle(qtw.QStyleFactory.create('Fusion'))

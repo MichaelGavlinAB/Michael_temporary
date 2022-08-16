@@ -1,0 +1,74 @@
+**To run a new session using Mapi API
+http://192.168.21.164:5001/
+
+**Useful signal we have encounter:
+
+_________Signals for VACC:________________________________________
+
+MFC5xx Device.FCTSensor.FCTSenAccOOI.AccOOINextLong.Kinematic.fDistX
+MFC5xx Device.FCTSensor.FCTSenAccOOI.AccOOINextLong.Kinematic.fVrelX
+MFC5xx Device.FCTSensor.FCTSenAccOOI.AccOOINextLong.Kinematic.fAabsX
+MFC5xx Device.FCTSensor.FCTSenAccOOI.AccOOINextLong
+MFC5xx Device.FCTSensor.FCTSenAccOOI.AccOOINextRight
+MFC5xx Device.FCTSensor.FCTSenAccOOI.AccOOINextLeft
+
+_________Signals for EBA:_________________________________________
+
+SIM VFB.FCTVehicle.pHEADOutputCustom.sPreBrake.bPreBrakeDecelEnabled
+SIM VFB.FCTVehicle.pHEADOutputCustom.sWarnings.sAcuteDynamicWarning.eSignal
+SIM VFB.FCTVehicle.pHEADOutputCustom.sWarnings.sPreDynamicWarning.eSignal
+SIM VFB.FCTSensor.pFCTCDHypotheses.Hypothesis[0].fTTC
+SIM VFB.FCTSensor.pFCTCDHypotheses.Hypothesis[0].uiObjectRef
+
+_________After we choose object type:_____________________________
+
+SIM VFB.EM.EmGenObjectList.aObject[3].Kinematic.fDistX
+SIM VFB.EM.EmGenObjectList.aObject[3].Kinematic.fVabsY
+SIM VFB.EM.EmCamObjectList.aObject[3].Classification
+
+_________Vehicle info:___________________________________________
+
+MFC5xx Device.VDY.VehDyn.Longitudinal.Velocity
+
+_________Time stamps:_____________________________________________
+
+SIM Image Right.SimImagePorts.SIM Image Right.AbsoluteTimestamp
+SIM VFB.SWCPorts.SIM VFB::INPUT::IMAGES::ImageRightBuffer.AbsoluteTimeStamp
+SIM VFB.SWCPorts.SIM VFB::INPUT::IMAGES::ImageShortRightBuffer.AbsoluteTimeStamp
+
+
+**********Calibration signals****************************************
+
+_________Static calibration:______________________________________
+
+MFC5xx Device.ACAL.pAcalExport.toDiagnotic.fPitchMacQual,
+MFC5xx Device.ACAL.pMonoCalibration.sPoseCalibration.uiPitchQuality
+MFC5xx Device.ACAL.pAcalExport.toDiagnotic.fYawMacQual
+MFC5xx Device.ACAL.pMonoCalibration.sPoseCalibration.uiYawQuality 
+MFC5xx Device.ACAL.pAcalExport.toDiagnotic.fRollMacQual
+MFC5xx Device.ACAL.pMonoCalibration.sPoseCalibration.uiRollQuality
+
+_________MTS value signals:______________________________________ (2 appearances):
+
+MFC5xx Device.ACAL.pAcalExport.toDiagnotic.fPitchMac (degrees)
+MFC5xx Device.ACAL.pMonoCalibration.sPoseCalibration.fPitch (rad)
+MFC5xx Device.ACAL.pAcalExport.toDiagnotic.fYawMac (degrees)
+MFC5xx Device.ACAL.pMonoCalibration.sPoseCalibration.fYaw (rad)
+MFC5xx Device.ACAL.pAcalExport.toDiagnotic.fRollMac (degrees)
+MFC5xx Device.ACAL.pMonoCalibration.sPoseCalibration.fRoll (rad)
+
+_________Dynamic calibration:____________________________________
+
+*MTS quality signals:
+MFC5xx Device.ACAL.pMonoCalibration.sPoseDynamic.uiiPitchQuality
+MFC5xx Device.ACAL.pMonoCalibration.sPoseDynamic.uiiYawQuality
+MFC5xx Device.ACAL.pMonoCalibration.sPoseDynamic.uiiRollQuality
+
+*MTS value signals:
+MFC5xx Device.ACAL.pMonoCalibration.sPoseDynamic.fPitch (rad)
+MFC5xx Device.ACAL.pMonoCalibration.sPoseDynamic.fYaw (rad)
+MFC5xx Device.ACAL.pMonoCalibration.sPoseDynamic.fRoll (rad)
+
+
+
+
