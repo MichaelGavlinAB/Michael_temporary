@@ -46,6 +46,9 @@ class MainWindow(qtw.QWidget):
         container4 = qtw.QWidget()
         container4.setLayout(qtw.QGridLayout())
 
+        container5 = qtw.QWidget()
+        container5.setLayout(qtw.QGridLayout())
+
         container4_debug = qtw.QWidget()
         container4_debug.setLayout(qtw.QGridLayout())
 
@@ -56,6 +59,8 @@ class MainWindow(qtw.QWidget):
         self.Time_stamp_display = qtw.QLineEdit()
         self.Time_stamp_display.returnPressed.connect(self.Time_stamp_display_pressed)
         self.Time_stamp_display.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
+        self.Time_stamp_display_real_time = qtw.QLabel()
+        # self.Time_stamp_display_real_time.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.display_search_results = qtw.QListWidget()
         self.display_search_results.itemDoubleClicked.connect(self.display_search_results_clicked)
         self.display_search_results.hide()
@@ -72,7 +77,7 @@ class MainWindow(qtw.QWidget):
         self.add_another_picture = qtw.QPushButton('+', clicked=self.hide_unhide_second_picture)
         self.add_another_plot = qtw.QPushButton('add plot', clicked=self.add_another_plot)
         self.add_another_plot.setFixedSize(100,30)
-        self.remove_plot = qtw.QPushButton('remove_plot', clicked=self.remove_plot)
+        self.remove_plot = qtw.QPushButton('remove plot', clicked=self.remove_plot)
         self.remove_plot.setFixedSize(100,30)
 
 
@@ -125,6 +130,7 @@ class MainWindow(qtw.QWidget):
         self.scale_dial.setValue(450)
         self.scale_dial.setFixedSize(80,100)
         self.scale_dial.valueChanged.connect(self.scale_dial_activated)
+
 
         # another plots 1 ##################################################################3
         self.search_bar1 = qtw.QLineEdit()  # search bar
@@ -235,14 +241,6 @@ class MainWindow(qtw.QWidget):
         self.graphWidget5.setSizePolicy(policy_a,policy_C)
 
 
-
-
-
-
-
-
-
-
         # adding widgets to main layout
         container.layout().addWidget(self.label, 0, 0, 1, 1)
         container.layout().addWidget(self.storage, 0, 1, 1, 1)  # place to hold the path of thr CSV
@@ -257,17 +255,18 @@ class MainWindow(qtw.QWidget):
         container1.layout().addWidget(self.picture_frame,0,1,1,1)
         container1.layout().addWidget(self.picture_frame2, 1, 1, 1, 1)
 
-
         # container2.layout().addWidget(self.Time_stamp_display, 0, 0, 1, 1)
         container2.layout().addWidget(self.previous_picture, 0, 1, 1, 1)
         container2.layout().addWidget(self.slider, 0, 2, 1, 1)
         container2.layout().addWidget(self.next_picture, 0, 3, 1, 1)
 
         # container_side_widgets.layout().addWidget(self.Time_stamp_display,0,0,1,1)
+        container_side_widgets.layout().setAlignment(Qt.AlignTop)
         container_side_widgets.layout().addWidget(self.scale_dial, 1, 0, 1, 1)
         container_side_widgets.layout().addWidget(self.storage_picture_scale, 2, 0, 1, 1)
         container_side_widgets.layout().addWidget(self.btn_reset_scale, 3, 0, 1, 1)
-        container_side_widgets.layout().setAlignment(Qt.AlignTop)
+        container_side_widgets.layout().addWidget(self.Time_stamp_display_real_time, 4, 0, 1, 1)
+
 
         container3.layout().addWidget(self.search_bar, 0, 0, 1, 1)
         container3.layout().addWidget(self.display_search_results, 1, 0, 1, 1)
@@ -303,7 +302,11 @@ class MainWindow(qtw.QWidget):
 
         container4.layout().addWidget(self.add_another_plot, 0, 6, 1, 1)
         container4.layout().addWidget(self.remove_plot, 3, 6, 1, 1)
-        container4.layout().setAlignment(Qt.AlignTop)
+        container4.layout().setAlignment(Qt.AlignHCenter)
+
+        container5.layout().addWidget(self.Time_stamp_display_real_time)
+        container5.layout().addWidget(self.Time_stamp_display)
+
 
 
 
@@ -323,8 +326,8 @@ class MainWindow(qtw.QWidget):
         self.layout().addWidget(container_side_widgets, 1, 0, 1, 1)
         self.layout().addWidget(container2,2,1,1,1)
         self.layout().addWidget(container3,3,1,1,1)
-        self.layout().addWidget(self.Time_stamp_display, 2, 0, 1, 1)
         self.layout().addWidget(container4, 3, 0, 1, 1)
+        self.layout().addWidget(container5, 2, 0, 1, 1)
         self.layout().addWidget(container4_debug,4,1,1,1)
 
 # opens csv file search box
@@ -445,14 +448,19 @@ class MainWindow(qtw.QWidget):
         # get current timestamp from image file name
         current_time_string = dropdown_menu_storage_image_names.currentText()[-20:-4] # get time from dropdown list
 
-        # convert timestamp to float
+        # convert timestamp to float and display time stamp
         if current_time_string.isnumeric():
             current_time = float(current_time_string)
         else:
             current_time = 0
         Time_stamp_display.setText(current_time_string)
-        # Time_stamp_display.display(current_time_string)
-        print("current_time_string: \n", current_time_string)
+
+
+        #display time stamps as real time
+        first_time_string = self.dropdown_menu_storage_image_names.itemText(0)[-20:-4]
+        real_time = (int(current_time_string)-int(first_time_string))/1000000
+        self.Time_stamp_display_real_time.setText(str(real_time) + ' [sec]')
+
 
         # get timestamps and data from storage widget and convert to numeric list
         time_stamps_from_storage = self.string_to_list(self.storage_CSV_timestamps.toPlainText())# get data from dropdown list
@@ -570,6 +578,7 @@ class MainWindow(qtw.QWidget):
         self.Csv_dropdown_menu_activated_update3()
         self.Csv_dropdown_menu_activated_update4()
         self.Csv_dropdown_menu_activated_update5()
+
 
 
     def Dropdown_image_activated2(self):
