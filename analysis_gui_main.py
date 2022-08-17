@@ -1,14 +1,15 @@
+from cartica_services.data_center.data_center import DataCenter
+from PyQt5.QtWidgets import  QLabel , QFileDialog,QSizePolicy
+from PyQt5.QtGui import QPixmap
 import PyQt5.QtWidgets as qtw
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import   QApplication, QLabel , QWidget , QPushButton , QVBoxLayout ,QMessageBox ,QFileDialog,QSizePolicy ,QComboBox,QMainWindow , QCompleter
 from PyQt5.QtCore import Qt
-import pandas as pd
 import pyqtgraph as pg
-from PyQt5.QtGui import QPixmap , QKeySequence
-from PyQt5 import QtCore
+import pandas as pd
 import os
-import qtawesome as qta
-print(qtw.QStyleFactory.keys())
+from automotive.POCs_Scripts.inference_results_visualisation import inference_results_visualisation
+import datetime
+
+
 
 class MainWindow(qtw.QWidget):
     def __init__(self):
@@ -18,8 +19,8 @@ class MainWindow(qtw.QWidget):
         self.myui()
         # self.resize(1500, 1300)
         self.show()
-
         # List of names, widgets are stored in a dictionary by these keys.
+        # print(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
 
 
     def myui(self):
@@ -27,7 +28,6 @@ class MainWindow(qtw.QWidget):
         #define layout containers
         # container = qtw.QWidget()
         tab_container = qtw.QTabWidget()
-
 
         container_main = qtw.QWidget()
         container_main.setLayout(qtw.QGridLayout())
@@ -56,8 +56,8 @@ class MainWindow(qtw.QWidget):
         container5 = qtw.QGroupBox()
         container5.setLayout(qtw.QGridLayout())
 
-        container4_debug = qtw.QGroupBox()
-        container4_debug.setLayout(qtw.QGridLayout())
+        container_mapi = qtw.QGroupBox()
+        container_mapi.setLayout(qtw.QGridLayout())
 
         info_tab = qtw.QWidget()
         info_tab.setLayout(qtw.QGridLayout())
@@ -66,15 +66,22 @@ class MainWindow(qtw.QWidget):
         Mapi_tab.setLayout(qtw.QGridLayout())
 
 
-
-
         # labels and display (Qlabel)
         self.label =  QLabel("1. Choose CSV file                    ")
         self.label3 = QLabel("2. select a folder with images to show")
-        self.label4 = QLabel("3. to download completed session , enter mapi session name")
-        self.label4.setAlignment(Qt.AlignTop)
-        self.mapi_session_path = qtw.QLineEdit("mapi session")
-        self.mapi_session_path.setAlignment
+        self.label4 = QLabel("download images from DC and run inference visualisation script")
+        self.label5 = QLabel("user email                            ")
+        self.label6 = QLabel("mapi session name                     ")
+        self.label7 = QLabel("download path                         ")
+        self.label8 = QLabel("inference results visualisation CFG   ")
+        self.label9 = QLabel("results")
+        self.label9.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.mail = qtw.QLineEdit("michael.gavlin@autobrains.ai     ")
+        self.download_images_path = qtw.QLineEdit("/home/michael/git/Michael_temporary_git/gui_development/download_images")
+        self.mapi_session_name = qtw.QLineEdit("CBLA_ens169_v0_53_121_equal_league_city")
+        self.inference_json_path = qtw.QLineEdit("/home/michael/git/automotive/src/python/automotive/POCs_Scripts/mts_mapi_analysis_platform/inference_results_visualisation_CFG.json")
+
+
         self.Time_stamp_display = qtw.QLineEdit()
         self.Time_stamp_display.returnPressed.connect(self.Time_stamp_display_pressed)
         self.Time_stamp_display.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
@@ -83,6 +90,7 @@ class MainWindow(qtw.QWidget):
         self.display_search_results.itemDoubleClicked.connect(self.display_search_results_clicked)
         self.display_search_results.hide()
 
+
         #logo
         self.logo = QPixmap(logo_path)
         self.logo_label = qtw.QLabel()
@@ -90,13 +98,11 @@ class MainWindow(qtw.QWidget):
         self.logo_label.setPixmap(self.logo)
 
 
-
         #text box second tab
         self.info_text_box = qtw.QLabel(text) #dext defined as global in main
         self.info_text_box.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.info_text_box_scroll_area = qtw.QScrollArea()
         self.info_text_box_scroll_area.setWidget(self.info_text_box)
-        self.info_text_box.setAlignment(Qt.AlignTop)
 
 
         # push Buttons (QPushButton)
@@ -112,6 +118,12 @@ class MainWindow(qtw.QWidget):
         self.add_another_plot.setFixedSize(100,30)
         self.remove_plot = qtw.QPushButton('remove plot', clicked=self.remove_plot)
         self.remove_plot.setFixedSize(100,30)
+        self.btn_download_picture = qtw.QPushButton('run', clicked=self.download_images_from_mapi)
+        self.btn_download_picture.setStyleSheet("background-color : green")
+        self.add_mapi_inference_to_main = qtw.QPushButton('add session to main window', clicked=self.add_mapi_inference_to_main)
+        self.add_mapi_inference_to_main.setStyleSheet("background-color : green")
+        self.add_mapi_inference_to_main.hide()
+        self.btn_download_picture.setMaximumWidth(100)
 
 
         # Drop down menu (Qcombo)
@@ -122,6 +134,7 @@ class MainWindow(qtw.QWidget):
         self.dropdown_menu_storage_image_names2 = qtw.QComboBox()
         self.dropdown_menu_storage_image_names2.setHidden(1)
         self.dropdown_menu_storage_image_names2.activated.connect(self.Dropdown_image_activated2) # adding action to combo box
+
 
         # storage widgets , keep data
         self.storage =  qtw.QLineEdit() #store temporary path ones clicked to be passed between functions
@@ -135,10 +148,10 @@ class MainWindow(qtw.QWidget):
         self.search_bar = qtw.QLineEdit()  # search bar
         self.search_bar.textChanged.connect(self.search_bar_activated)
 
-
         #   plot widgets
         self.graphWidget = pg.PlotWidget() #plot
         self.graphWidget.showGrid(x=True, y=True)
+
 
         # image display
         # init first picture
@@ -151,10 +164,10 @@ class MainWindow(qtw.QWidget):
         self.label_image = QLabel() #insert image
         self.label_image2 = QLabel() #insert image
 
-
         # slider widget
         self.slider = qtw.QSlider(1) #slider
         self.slider.valueChanged.connect(self.slider_move)
+
 
         # dial widget
         self.scale_dial = qtw.QDial()
@@ -163,7 +176,6 @@ class MainWindow(qtw.QWidget):
         self.scale_dial.setValue(450)
         self.scale_dial.setFixedSize(100,100)
         self.scale_dial.valueChanged.connect(self.scale_dial_activated)
-
 
         # another plots 1 ##################################################################3
         self.search_bar1 = qtw.QLineEdit()  # search bar
@@ -334,25 +346,28 @@ class MainWindow(qtw.QWidget):
         container5.layout().addWidget(self.Time_stamp_display)
         container5.layout().setAlignment(Qt.AlignHCenter)
 
-        # tab layouts
-        info_tab.layout().addWidget(self.info_text_box_scroll_area,0,0,1,1)
-        Mapi_tab.layout().addWidget(self.label4, 0, 0, 1, 1)
-        Mapi_tab.layout().addWidget(self.mapi_session_path, 1, 0, 1, 1)
+        # mapi tab layout
+        container_mapi.layout().setAlignment(Qt.AlignTop)
+        container_mapi.layout().addWidget(self.label4, 0, 1, 1, 1)
+        container_mapi.layout().addWidget(self.mail,1,1,1,1)
+        container_mapi.layout().addWidget(self.label5 , 1, 0, 1, 1)
+        container_mapi.layout().addWidget(self.mapi_session_name, 2, 1, 1, 1)
+        container_mapi.layout().addWidget(self.label6, 2, 0, 1, 1)
+        container_mapi.layout().addWidget(self.download_images_path, 3, 1, 1, 1)
+        container_mapi.layout().addWidget(self.label7, 3, 0, 1, 1)
+        container_mapi.layout().addWidget(self.inference_json_path, 4, 1, 1, 1)
+        container_mapi.layout().addWidget(self.label8,4, 0, 1, 1)
+        container_mapi.layout().addWidget(self.btn_download_picture, 5, 0, 1, 1)
+        container_mapi.layout().addWidget(self.label9, 5, 1, 1, 1)
+        container_mapi.layout().addWidget(self.add_mapi_inference_to_main, 6, 1, 1, 1)
 
-        # Mapi_tab.layout().addWidget()
 
 
-        #debug cstorage containers
-        # container4_debug.layout().addWidget(self.storage_picture_scale, 1, 1, 1, 1)
-        # container4_debug.layout().addWidget(self.scale_dial, 1, 1, 1, 1)
-        # container4_debug.layout().addWidget(self.picture_frame, 1, 1, 1, 1)
-        # container4_debug.layout().addWidget(self.storage_CSV_data, 3, 1, 1, 1) #store temporary string of data
-        # container4_debug.layout().addWidget(self.storage_CSV_timestamps, 4, 1, 1, 1)  # store temporary string of data
-        # container4_debug.layout().addWidget(self.display_search_results, 1, 1, 1, 1)
+
 
 
         # adding containers to tab main layout
-
+        container_main.layout().setAlignment(Qt.AlignTop)
         container_main.layout().addWidget(self.logo_label, 0, 0, 1, 1)
         container_main.layout().addWidget(container,0,1,1,1)
         container_main.layout().addWidget(container1,1,1,1,1)
@@ -361,6 +376,15 @@ class MainWindow(qtw.QWidget):
         container_main.layout().addWidget(container3,3,1,1,1)
         container_main.layout().addWidget(container4, 3, 0, 1, 1)
         container_main.layout().addWidget(container5, 2, 0, 1, 1)
+
+
+        # add widgets to tubs  layouts
+
+        #add to info tab layout
+        info_tab.layout().addWidget(self.info_text_box_scroll_area,0,0,1,1)
+
+        #add to mapi tab layout
+        Mapi_tab.layout().addWidget(container_mapi, 0, 0, 1, 1)
 
         #adding tab to tab container
         tab_container.addTab(container_main , 'Main')
@@ -371,19 +395,11 @@ class MainWindow(qtw.QWidget):
         #main layout
         '''
         add to main display -----------------------------------------------------------------------------------
+        add to main display -----------------------------------------------------------------------------------
+        add to main display -----------------------------------------------------------------------------------
         '''
         self.layout().addWidget(tab_container,0,0,0,0) # <<<
 
-
-        # self.layout().addWidget(container,0,1,1,1)
-        # self.layout().addWidget(container1,1,1,1,1)
-        # self.layout().addWidget(container_side_widgets, 1, 0, 1, 1)
-        # self.layout().addWidget(container2,2,1,1,1)
-        # self.layout().addWidget(container3,3,1,1,1)
-        # self.layout().addWidget(container4, 3, 0, 1, 1)
-        # self.layout().addWidget(container5, 2, 0, 1, 1)
-
-        # self.layout().addWidget(container4_debug,4,1,1,1)
 
 # opens csv file search box
     def QPushButton_clicked(self) :
@@ -570,15 +586,30 @@ class MainWindow(qtw.QWidget):
         else:
             widget.plot(x_data, y_data, name="data")  # plot the data
 
-
     def show_picture(self):
+        # pop_window = 1 , take path from pop window
+        # pop_window = 0 , take path from given path
+        pop_window = 1
+        path = []
+        self.show_picture_function(pop_window,path)
+
+    def show_picture_function(self,pop_window, path):
+
         print('show_picture')
         '''
         pop window to select folder containing images, store image names in combo list and display first image.
         '''
         #user select path with images
-        picture_folder_path = QFileDialog.getExistingDirectory(None, 'Select a folder:')
+        if pop_window == 1:
+            picture_folder_path = QFileDialog.getExistingDirectory(None, 'Select a folder:')
+        else:
+            picture_folder_path = path
+
         file_names = os.listdir(picture_folder_path)
+        print(file_names)
+
+
+
         file_names.sort()
 
 
@@ -990,6 +1021,68 @@ class MainWindow(qtw.QWidget):
 
         # time_stamps_from_storage = self.string_to_list(self.storage_CSV_timestamps.toPlainText())# get data from dropdown list
         # print(time_stamps_from_storage)
+
+    def download_images_from_mapi(self):
+        '''
+        download images out of dc and draw visual markers
+        '''
+
+        self.btn_download_picture.setStyleSheet("background-color : yellow")
+        dc = DataCenter(user_email=self.mail.text(), allow_load_from_cache=False)
+        # base_path = '/home/michael/git/Michael_temporary_git/gui_development/download_images'
+        # session_name = 'CBLA_ens169_v0_53_121_equal_league_city'
+        # config_path = r'/home/michael/git/automotive/src/python/automotive/POCs_Scripts/mts_mapi_analysis_platform/inference_results_visualisation_CFG.json'
+        base_path = self.download_images_path.text()
+        session_name = self.mapi_session_name.text()
+        config_path = self.inference_json_path.text()
+
+        time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        output_dir = f'{base_path}/{session_name + "_" +  time}'
+
+        #run main inference script (eric script)
+        inference_results_visualisation.process_images(session_name, output_dir, config_path)
+        results_name = self.get_results_path(output_dir)
+
+        #search for 'results' string in folder names and add to label
+        for result_name in results_name:
+            if 'results' in result_name:
+                print('results: ', result_name)
+                result_dir = os.path.join(output_dir,result_name)
+                self.label9.setText(result_dir)
+                self.add_mapi_inference_to_main.show()
+                return
+
+
+    def get_results_path(self, output_dir):
+        '''
+        get path as str
+        return: containing folder names as [str]
+        '''
+
+        # finds only directories in path
+        results_path = []
+        if os.path.isdir(output_dir):
+            for file in os.listdir(output_dir):
+                my_list = os.path.join(output_dir, file)
+                if os.path.isdir(my_list):
+                    results_path.append(my_list)
+
+        results_name = []
+        for result_path in results_path:
+            results_name.append(os.path.basename(os.path.normpath(result_path)))
+
+        return results_name
+
+    def add_mapi_inference_to_main(self):
+        self.show_picture_function(0, self.label9.text())
+        self.add_mapi_inference_to_main.setStyleSheet("background-color : yellow")
+        self.add_mapi_inference_to_main.setText('done')
+
+        print('add_mapi_inference_to_main')
+
+
+
+
 
 
 if __name__ == "__main__":
