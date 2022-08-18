@@ -1,3 +1,4 @@
+from automotive.POCs_Scripts.inference_results_visualisation import inference_results_visualisation
 from cartica_services.data_center.data_center import DataCenter
 from PyQt5.QtWidgets import  QLabel , QFileDialog,QSizePolicy
 from PyQt5.QtGui import QPixmap
@@ -5,10 +6,9 @@ import PyQt5.QtWidgets as qtw
 from PyQt5.QtCore import Qt
 import pyqtgraph as pg
 import pandas as pd
-import os
-from automotive.POCs_Scripts.inference_results_visualisation import inference_results_visualisation
 import datetime
-
+import json
+import os
 
 
 class MainWindow(qtw.QWidget):
@@ -65,21 +65,30 @@ class MainWindow(qtw.QWidget):
         Mapi_tab = qtw.QWidget()
         Mapi_tab.setLayout(qtw.QGridLayout())
 
+        # load preset
+        f = open('preset.json')
+        preset = json.load(f)
+
+
 
         # labels and display (Qlabel)
-        self.label =  QLabel("1. Choose CSV file                    ")
-        self.label3 = QLabel("2. select a folder with images to show")
-        self.label4 = QLabel("download images from DC and run inference visualisation script")
-        self.label5 = QLabel("user email                            ")
-        self.label6 = QLabel("mapi session name                     ")
-        self.label7 = QLabel("download path                         ")
-        self.label8 = QLabel("inference results visualisation CFG   ")
-        self.label9 = QLabel("results")
+        self.label =  QLabel(r"1. Choose CSV file                    ")
+        self.label3 = QLabel(r"2. select a folder with images to show")
+        self.label4 = QLabel("use this tab to download images from DC and run inference visualisation script\n \n"
+                             "- default values stored in 'preset.json'. \n"
+                             "- delete downloaded sessions when finish to free space. \n"
+                             "- change 'inference_results_visualisation_CFG.json' file to change drawing settings")
+        self.label4.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
+        self.label5 = QLabel(r"User email                            ")
+        self.label6 = QLabel(r"Mapi session name                     ")
+        self.label7 = QLabel(r"Download path                         ")
+        self.label8 = QLabel(r"Inference results visualisation CFG   ")
+        self.label9 = QLabel(r"!! program will be idle while downloading and drawing results !!")
         self.label9.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.mail = qtw.QLineEdit("michael.gavlin@autobrains.ai     ")
-        self.download_images_path = qtw.QLineEdit("/home/michael/git/Michael_temporary_git/gui_development/download_images")
-        self.mapi_session_name = qtw.QLineEdit("CBLA_ens169_v0_53_121_equal_league_city")
-        self.inference_json_path = qtw.QLineEdit("/home/michael/git/automotive/src/python/automotive/POCs_Scripts/mts_mapi_analysis_platform/inference_results_visualisation_CFG.json")
+        self.mail = qtw.QLineEdit(preset['user_email'])
+        self.download_images_path = qtw.QLineEdit(preset['download_dir'])
+        self.mapi_session_name = qtw.QLineEdit()
+        self.inference_json_path = qtw.QLineEdit(preset['inference_json_path'])
 
 
         self.Time_stamp_display = qtw.QLineEdit()
@@ -348,23 +357,18 @@ class MainWindow(qtw.QWidget):
 
         # mapi tab layout
         container_mapi.layout().setAlignment(Qt.AlignTop)
-        container_mapi.layout().addWidget(self.label4, 0, 1, 1, 1)
         container_mapi.layout().addWidget(self.mail,1,1,1,1)
         container_mapi.layout().addWidget(self.label5 , 1, 0, 1, 1)
-        container_mapi.layout().addWidget(self.mapi_session_name, 2, 1, 1, 1)
-        container_mapi.layout().addWidget(self.label6, 2, 0, 1, 1)
+
+        container_mapi.layout().addWidget(self.inference_json_path, 2, 1, 1, 1)
+        container_mapi.layout().addWidget(self.label8,2, 0, 1, 1)
         container_mapi.layout().addWidget(self.download_images_path, 3, 1, 1, 1)
         container_mapi.layout().addWidget(self.label7, 3, 0, 1, 1)
-        container_mapi.layout().addWidget(self.inference_json_path, 4, 1, 1, 1)
-        container_mapi.layout().addWidget(self.label8,4, 0, 1, 1)
+        container_mapi.layout().addWidget(self.mapi_session_name, 4, 1, 1, 1)
+        container_mapi.layout().addWidget(self.label6, 4, 0, 1, 1)
         container_mapi.layout().addWidget(self.btn_download_picture, 5, 0, 1, 1)
         container_mapi.layout().addWidget(self.label9, 5, 1, 1, 1)
         container_mapi.layout().addWidget(self.add_mapi_inference_to_main, 6, 1, 1, 1)
-
-
-
-
-
 
         # adding containers to tab main layout
         container_main.layout().setAlignment(Qt.AlignTop)
@@ -384,11 +388,13 @@ class MainWindow(qtw.QWidget):
         info_tab.layout().addWidget(self.info_text_box_scroll_area,0,0,1,1)
 
         #add to mapi tab layout
-        Mapi_tab.layout().addWidget(container_mapi, 0, 0, 1, 1)
+        Mapi_tab.layout().addWidget(self.label4, 0, 0, 1, 1)
+        Mapi_tab.layout().addWidget(container_mapi, 1, 0, 1, 1)
+
 
         #adding tab to tab container
         tab_container.addTab(container_main , 'Main')
-        tab_container.addTab(Mapi_tab, 'Mapi')
+        tab_container.addTab(Mapi_tab, 'multi API')
         tab_container.addTab(info_tab, 'Info')
 
 
@@ -1079,9 +1085,6 @@ class MainWindow(qtw.QWidget):
         self.add_mapi_inference_to_main.setText('done')
 
         print('add_mapi_inference_to_main')
-
-
-
 
 
 
