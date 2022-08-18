@@ -75,15 +75,15 @@ class MainWindow(qtw.QWidget):
         self.label =  QLabel(r"1. Choose CSV file                    ")
         self.label3 = QLabel(r"2. select a folder with images to show")
         self.label4 = QLabel("use this tab to download images from DC and run inference visualisation script\n \n"
-                             "- default values stored in 'preset.json'. \n"
-                             "- delete downloaded sessions when finish to free space. \n"
-                             "- change 'inference_results_visualisation_CFG.json' file to change drawing settings")
+                             "  - default values stored in 'preset.json'. \n"
+                             "  - delete downloaded sessions when finish to free space. \n"
+                             "  - change 'inference_results_visualisation_CFG.json' file to change drawing settings")
         self.label4.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
         self.label5 = QLabel(r"User email                            ")
         self.label6 = QLabel(r"Mapi session name                     ")
         self.label7 = QLabel(r"Download path                         ")
         self.label8 = QLabel(r"Inference results visualisation CFG   ")
-        self.label9 = QLabel(r"!! program will be idle while downloading and drawing results !!")
+        self.label9 = QLabel(r"!! program will be idle while downloading and drawing results, be patient !!")
         self.label9.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.mail = qtw.QLineEdit(preset['user_email'])
         self.download_images_path = qtw.QLineEdit(preset['download_dir'])
@@ -180,7 +180,7 @@ class MainWindow(qtw.QWidget):
 
         # dial widget
         self.scale_dial = qtw.QDial()
-        self.scale_dial.setMaximum(800)
+        self.scale_dial.setMaximum(1200)
         self.scale_dial.setMinimum(200)
         self.scale_dial.setValue(450)
         self.scale_dial.setFixedSize(100,100)
@@ -795,7 +795,7 @@ class MainWindow(qtw.QWidget):
         '''
         reset scale storage widget
         '''
-        self.storage_picture_scale.setText('450')
+        self.storage_picture_scale.setText('1000')
         self.Dropdown_image_activated()
         self.Dropdown_image_activated2()
 
